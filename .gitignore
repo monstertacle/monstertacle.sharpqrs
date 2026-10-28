@@ -1,0 +1,65 @@
+# Adapted for this .NET library repository from:
+# https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
+# Keep specs, .specify, .opencode commands, tool manifests and lock files tracked.
+
+# .NET build and package output
+**/[Bb]in/
+**/[Oo]bj/
+/artifacts/
+/.artifacts/
+*.nupkg
+*.snupkg
+*.binlog
+MSBuild_Logs/
+
+# Local IDE state (shared configuration remains trackable)
+.vs/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/shelf/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.DotSettings.user
+_ReSharper*/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+
+# Test, coverage, mutation and benchmark output
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+/coveragereport/
+**/StrykerOutput/
+BenchmarkDotNet.Artifacts/
+
+# Temporary and local diagnostic files
+*.log
+*.tmp
+*.tmp_proj
+*.bak
+*~
+.DS_Store
+Thumbs.db
+
+# Local secrets and publishing credentials (never a substitute for secret scanning)
+.env
+.env.*
+!.env.example
+!.env.template
+*.pfx
+*.p12
+*.publishsettings
+*.pubxml.user
