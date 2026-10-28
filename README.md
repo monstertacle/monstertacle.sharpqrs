@@ -1,0 +1,82 @@
+# Monstertacle.SharpQrs
+
+Typed, in-process command and query dispatch for .NET 10, with a separate scoped
+registration integration. Both libraries are independent of SharpClaw.
+
+- `Monstertacle.SharpQrs`: dependency-free core with explicit handler instances.
+- `Monstertacle.SharpQrs.AspNetCore`: explicit DI registration and scope-aware lazy
+  handler resolution; depends only on the core and DI abstractions.
+
+## Build and verify
+
+Install .NET SDK **10.0.403** and **PowerShell 7**, then run:
+
+```powershell
+dotnet tool restore
+pwsh -NoProfile -File scripts/verify.ps1
+```
+
+Verification uses locked restore, warnings-as-errors Release builds, behavioural
+tests, at least 90% line coverage **in each library**, the strict full-source
+Codemetr guard, a dependency vulnerability audit, runnable examples and isolated
+NuGet package consumers. Reports are written to a fresh ignored `artifacts/verify-*`
+directory. Windows and Linux CI run the same script. Packages are not published.
+
+## Standalone usage
+
+```csharp
+var dispatcher = new CommandDispatcher();
+dispatcher.Register<MyCommand, MyResult>(new MyCommandHandler());
+MyResult result = await dispatcher.DispatchAsync(new MyCommand(), cancellationToken);
+```
+
+Implement `ICommand<MyResult>` and `ICommandHandler<MyCommand, MyResult>`, whose
+`HandleAsync` returns `Task<MyResult>`. Queries use `IQuery<TResult>`,
+`IQueryHandler<TQuery, TResult>` and `QueryDispatcher` in the same way.
+See the [complete standalone example](examples/Standalone/README.md).
+
+## Scoped integration
+
+```csharp
+services.AddSharpQrsCommand<MyCommand, MyResult, MyCommandHandler>();
+services.AddSharpQrsQuery<MyQuery, MyResult, MyQueryHandler>();
+```
+
+These helpers also register infrastructure; `services.AddSharpQrs()` alone is
+idempotent. Resolve `ICommandDispatcher` and `IQueryDispatcher` inside an application
+or request scope. Enable DI scope validation. Concrete handlers are registered
+once as scoped, even when selected for several distinct contracts. They activate
+only when needed; container scope disposal owns their resources. Use asynchronous
+scope disposal for async-only services. Do not separately register selected concrete
+handlers or dispatcher services: those configurations are rejected atomically.
+Direct handler-interface registrations are not discovered.
+See the [web example](examples/Web/README.md).
+
+## Contracts
+
+Registration is completed before dispatch. Routing matches the exact concrete
+request type and result type, without base-type fallback, scanning or reflection-based
+invocation. Duplicate registration fails without replacing an original handler.
+Each call invokes its handler once. Overlapping calls route independently; applications
+remain responsible for handler thread safety. Standalone handlers remain caller-owned.
+
+Null requests, handlers and service collections are rejected explicitly. Missing
+mappings, wrong result contracts, null tasks and **every actual null result** fail
+with a diagnostic. Nullable members inside a non-null result are permitted. Represent
+absence with an application-defined non-null value, such as a record containing
+`Found` and nullable data. No mandatory result wrapper is imposed.
+
+Cancellation tokens, including already-cancelled tokens, reach handlers unchanged.
+Handlers control cooperative cancellation. Original synchronous/asynchronous
+exceptions and cancellation propagate without dispatcher-added wrappers.
+No retries, transactions, persistence, distributed messaging or generated HTTP
+endpoints are provided.
+
+## Development
+
+See [development and quality gates](docs/development.md), the
+[quickstart validation guide](specs/001-cqrs-libraries/quickstart.md),
+[public contracts](specs/001-cqrs-libraries/contracts/core-api.md) and
+[implementation evidence](specs/001-cqrs-libraries/implementation-evidence.md).
+The initial package version is `0.1.0-alpha.1`; this repository does not claim
+compatibility with another library's API. Licensed under [MIT](LICENSE).

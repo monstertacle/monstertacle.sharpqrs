@@ -1,0 +1,20 @@
+{
+  "context": [
+    "src",
+    "tests",
+    "examples"
+  ],
+  "aggregatePartialTypes": true,
+  "rules": {
+    "maxTypeLines": 250,
+    "maxConstructorParameters": 4,
+    "maxPublicMethods": 8,
+    "maxInstanceFields": 5,
+    "maxCyclomaticComplexity": 10,
+    "minMaintainabilityIndex": 30,
+    "maxClassCoupling": 20,
+    "maxDepthOfInheritance": 1,
+    "maxParameters": 4,
+    "maxNestingDepth": 2
+  }
+}

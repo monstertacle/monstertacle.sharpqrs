@@ -1,10 +1,10 @@
 # Implementation Plan: General-purpose CQRS Libraries
 
 **Feature**: `001-cqrs-libraries` | **Date**: 2026-10-28 | **Spec**: [spec.md](spec.md)
-**Branch**: Spec Kit reports `001-cqrs-libraries` as the feature identifier; no Git
-repository or actual branch exists in this workspace.
-**Status**: Design and tasks prepared; analysis remediation under review. Explicit
-metrics-profile and installation approval remain prerequisites to implementation.
+**Branch**: `feature/001-cqrs-libraries`; Spec Kit feature identifier `001-cqrs-libraries`.
+**Status**: Implementation, metrics profile and local tool installation authorised.
+Implementation and full local verification passed; committed/hosted execution gates
+are tracked in [implementation-evidence.md](implementation-evidence.md).
 
 ## Summary
 
@@ -16,7 +16,7 @@ registers concrete handlers once and installs non-owning scope-aware adapters in
 core dispatchers. This reuses core validation without leaking container dependencies
 into the core or registering disposable handler aliases multiple times.
 
-This command produces design documentation only. No application code, tests, tool
+The planning command produced design documentation only. No application code, tests, tool
 manifests, CI workflows or tasks are created. No installation, publication, Git
 initialisation or commit is performed.
 
@@ -176,9 +176,10 @@ available during early property evaluation.
   source is copied: no root licence was found there, so source reuse rights cannot
   be assumed from this project's MIT licence.
 
-## Proposed Metrics Profile — Approval Required
+## Approved Metrics Profile
 
-Use published `Codemetr.CSharp.Tool` 0.1.0, installed locally only after approval.
+The user explicitly approved this profile and repository-local installation during
+implementation. Use published `Codemetr.CSharp.Tool` 0.1.0.
 Enable `aggregatePartialTypes`; retain all default banned type-name suffixes.
 No baselines, hand-written-code exclusions or relaxed per-folder overrides.
 

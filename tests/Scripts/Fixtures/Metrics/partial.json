@@ -1,0 +1,1 @@
+{"schema": 1, "tool": "codemetr-csharp", "version": "0.1.0", "command": "check", "passed": true, "summary": {"files": 1, "types": 1, "parseErrors": 0, "skipped": 0, "violations": 0}, "parseErrors": [], "types": [{"file": "src/Example.cs"}], "completeness": {"unmeasuredPartialDeclarations": ["src/Example.cs"]}}

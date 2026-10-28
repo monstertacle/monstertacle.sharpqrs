@@ -1,0 +1,47 @@
+name: Verify
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.403'
+      - name: Record PowerShell and configure temporary storage
+        run: |
+          $PSVersionTable
+          if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7 is required.' }
+          $temporary = Join-Path $HOME 'dev/.agenttemp'
+          New-Item $temporary -ItemType Directory -Force | Out-Null
+          "TMPDIR=$temporary" >> $env:GITHUB_ENV
+          "TMP=$temporary" >> $env:GITHUB_ENV
+          "TEMP=$temporary" >> $env:GITHUB_ENV
+      - name: Complete verification
+        run: ./scripts/verify.ps1
+      - name: Retain verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verification-${{ matrix.os }}
+          path: artifacts/verify-*/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/Standalone/Standalone.csproj" />
+    <Project Path="examples/Web/Web.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Monstertacle.SharpQrs.AspNetCore/Monstertacle.SharpQrs.AspNetCore.csproj" />
+    <Project Path="src/Monstertacle.SharpQrs/Monstertacle.SharpQrs.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Monstertacle.SharpQrs.Tests/Monstertacle.SharpQrs.Tests.csproj" />
+  </Folder>
+</Solution>
