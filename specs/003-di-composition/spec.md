@@ -1,7 +1,7 @@
 # Feature Specification: Correct DI composition and practical usage
 
 **Created**: 2026-10-29
-**Status**: Clarification of the checked composition boundary pending
+**Status**: Clarified; checked construction explicitly approved
 **Authority**: User authorised autonomous Spec Kit implementation of the opposing review follow-up.
 **Origins**: DI-001, DI-002, UX-001 and UX-002 in docs/plans/di-composition-hardening.md.
 
@@ -67,10 +67,10 @@ inventory. Automatically detecting duplicate descriptors from an already-built
 provider requires eager activation or private implementation inspection. Both are
 excluded. The proposed checked setup boundary is described in contracts/composition.md.
 
-One contract decision requires explicit owner approval under the Constitution:
-requiring that boundary for interface-based mappings changes the unreleased 002
-integration setup. Published concrete APIs remain valid. No runtime code for that
-change is implemented before the decision. Autonomous progression covers other phases.
+The user explicitly approved autonomous implementation after the checked-construction
+proposal was presented. The required boundary is approved, including migration of
+the unreleased interface helpers; published concrete APIs remain compatible. No
+blocking requirements question remains. Autonomous progression covers all phases.
 
 ## Assumptions and Limits
 

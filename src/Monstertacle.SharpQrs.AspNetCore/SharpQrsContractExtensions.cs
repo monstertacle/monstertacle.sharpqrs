@@ -17,9 +17,10 @@ public static class SharpQrsContractExtensions
         HandlerServiceSelection.Validate<ICommandHandler<TCommand, TResult>>(services);
         RegistrationValidation.Mapping(services, typeof(TCommand), false);
         services.AddSharpQrs();
-        services.AddSingleton(new CommandHandlerRegistration(typeof(TCommand), (dispatcher, provider) =>
+        services.AddSingleton(new SelectedHandlerService(typeof(ICommandHandler<TCommand, TResult>)));
+        services.AddSingleton(new CommandHandlerRegistration(typeof(TCommand), static (dispatcher, provider) =>
         {
-            HandlerServiceSelection.Validate<ICommandHandler<TCommand, TResult>>(services);
+            HandlerServiceSelection.RequirePrepared<ICommandHandler<TCommand, TResult>>(provider);
             dispatcher.Register(new ScopedCommandHandler<TCommand, TResult, ICommandHandler<TCommand, TResult>>(provider));
         }));
         return services;
@@ -37,9 +38,10 @@ public static class SharpQrsContractExtensions
         HandlerServiceSelection.Validate<IQueryHandler<TQuery, TResult>>(services);
         RegistrationValidation.Mapping(services, typeof(TQuery), true);
         services.AddSharpQrs();
-        services.AddSingleton(new QueryHandlerRegistration(typeof(TQuery), (dispatcher, provider) =>
+        services.AddSingleton(new SelectedHandlerService(typeof(IQueryHandler<TQuery, TResult>)));
+        services.AddSingleton(new QueryHandlerRegistration(typeof(TQuery), static (dispatcher, provider) =>
         {
-            HandlerServiceSelection.Validate<IQueryHandler<TQuery, TResult>>(services);
+            HandlerServiceSelection.RequirePrepared<IQueryHandler<TQuery, TResult>>(provider);
             dispatcher.Register(new ScopedQueryHandler<TQuery, TResult, IQueryHandler<TQuery, TResult>>(provider));
         }));
         return services;

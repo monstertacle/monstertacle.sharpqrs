@@ -1,6 +1,6 @@
 # Composition research
 
-Decision proposed: validate actual descriptors at a checked preparation boundary;
+Decision adopted after owner approval: validate actual descriptors at a checked preparation boundary;
 use a provider-factory wrapper for Generic Host's final container construction.
 The standard provider's public abstraction cannot count descriptors without resolving
 services. IServiceProviderIsService can detect existence, not distinguish one from

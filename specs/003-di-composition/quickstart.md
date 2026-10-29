@@ -5,7 +5,7 @@ machine. Confirm the mode-isolation regression fails on the reviewed baseline an
 passes after separating validation. Existing same-mode conflicts and shared concrete
 handler disposal must remain passing.
 
-After approval of the checked composition contract, run the full copied collection
+With the checked composition contract approved, run the full copied collection
 matrix for async/sync command/query mappings, no/one/two services, keyed services,
 independent providers and unchanged source collections. Verify direct preparation
 and Generic Host's wrapper using real service providers with scope validation.

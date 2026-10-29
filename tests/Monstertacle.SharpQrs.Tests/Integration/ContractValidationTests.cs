@@ -31,10 +31,7 @@ public sealed class ContractValidationTests
         Add(services, query);
         Map(services, query);
         Add(services, query);
-        using var provider = services.BuildValidated();
-        using var scope = provider.CreateScope();
-        var type = query ? typeof(IQueryDispatcher) : typeof(ICommandDispatcher);
-        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetRequiredService(type));
+        Assert.Throws<InvalidOperationException>(() => services.BuildValidated());
     }
 
     [Theory]

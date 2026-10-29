@@ -58,13 +58,22 @@ internal static class Program
     private static async Task Main()
     {
         var services = new ServiceCollection();
-        services.AddSharpQrsCommand<EchoCommand, EchoResult, EchoCommandHandler>();
-        services.AddSharpQrsQuery<EchoQuery, EchoResult, EchoQueryHandler>();
-        await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+        services.AddScoped<ICommandHandler<EchoCommand, EchoResult>, EchoCommandHandler>();
+        services.AddScoped<IQueryHandler<EchoQuery, EchoResult>, EchoQueryHandler>();
+        services.AddScoped<ISyncCommandHandler<EchoCommand, EchoResult>, EchoCommandHandler>();
+        services.AddScoped<ISyncQueryHandler<EchoQuery, EchoResult>, EchoQueryHandler>();
+        services.AddSharpQrsCommand<EchoCommand, EchoResult>();
+        services.AddSharpQrsQuery<EchoQuery, EchoResult>();
+        services.AddSharpQrsSyncCommand<EchoCommand, EchoResult>();
+        services.AddSharpQrsSyncQuery<EchoQuery, EchoResult>();
+        await using var provider = services.PrepareSharpQrs().BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
         await using var scope = provider.CreateAsyncScope();
         var command = await scope.ServiceProvider.GetRequiredService<ICommandDispatcher>().DispatchAsync(new EchoCommand("package"));
         var query = await scope.ServiceProvider.GetRequiredService<IQueryDispatcher>().DispatchAsync(new EchoQuery("package"));
-        if (command.Value != "package" || query.Value != "package") throw new InvalidOperationException("Packaged dispatch failed.");
+        var syncCommand = scope.ServiceProvider.GetRequiredService<ISyncCommandDispatcher>().Dispatch(new EchoCommand("package"));
+        var syncQuery = scope.ServiceProvider.GetRequiredService<ISyncQueryDispatcher>().Dispatch(new EchoQuery("package"));
+        if (command.Value != "package" || query.Value != "package" || syncCommand.Value != "package" || syncQuery.Value != "package")
+            throw new InvalidOperationException("Packaged dispatch failed.");
         Console.WriteLine("Integrated package consumer passed.");
     }
 }

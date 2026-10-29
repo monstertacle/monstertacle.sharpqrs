@@ -28,7 +28,7 @@ internal static class SyncRegistrationValidation
     internal static void Concrete(IServiceCollection services, Type handler)
     {
         SyncRegistrationValidation.Infrastructure(services);
-        HandlerTypeValidation.Validate(services, handler);
+        ConcreteHandlerRegistration.Validate(services, handler);
     }
 
     private static object? Instance(ServiceDescriptor descriptor)

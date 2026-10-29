@@ -47,3 +47,14 @@ across mappings, consistently use the three-argument concrete helpers, which reg
 that implementation once. Registering multiple container factories that return one
 disposable instance may make the container dispose it more than once. SharpQrs
 neither introduces those aliases nor takes ownership from the container.
+
+
+## Checked construction
+
+The web and worker hosts use `SharpQrsServiceProviderFactory` through their shared
+`ExampleComposition`. The wrapper prepares the final descriptors after host container
+configuration. For direct construction, build from
+`services.PrepareSharpQrs().BuildServiceProvider(options)` instead. Interface mappings
+require this boundary; copied/customised collections must be prepared independently.
+See [composition and migration](../../docs/di-composition.md) for ordinary concrete
+compatibility and the stronger final-validation guarantees.

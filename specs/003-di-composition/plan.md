@@ -3,7 +3,7 @@
 **Created**: 2026-10-29
 **Status**: in_progress
 **Owner**: repository maintainer, Alexander Bleissem
-**Authority**: user requested autonomous implementation; required setup-contract decision pending separately.
+**Authority**: user requested autonomous implementation; checked construction explicitly approved in the latest user instruction.
 
 ## Technical context and Constitution check
 
@@ -24,10 +24,10 @@ complete validation. Execute failing sync command/query tests alongside an exter
 async dispatcher before implementation; preserve real same-mode conflict failures
 and cross-mode concrete sharing. This slice does not depend on a new public API.
 
-## Checked composition slice proposed
+## Approved checked composition slice
 
 Implement the additive PrepareSharpQrs snapshot and SharpQrsServiceProviderFactory
-wrapper described in contracts/composition.md only after owner approval of the
+wrapper described in contracts/composition.md following owner approval of the
 required construction change for unreleased interface helpers. Represent contract
 selection as immutable type metadata, not closures capturing IServiceCollection.
 Preparation validates actual descriptors and owned concrete identity, removes stale

@@ -13,8 +13,8 @@ passed before the later worker example changes. Final verification will identify
 the complete candidate. Logs remain ignored
 under artifacts/di-mode-{red,green}.log.
 
-The required checked-construction contract change is still awaiting the explicit
-owner decision. No dependent runtime implementation is claimed.
+At this independent-slice checkpoint, the checked-construction contract decision
+was pending. The later approval and implementation are recorded below.
 
 
 ## Worker and decorator example
@@ -65,3 +65,69 @@ have separate cohesive responsibilities. The worker's scope factory stays at the
 host boundary; scoped application work receives dispatcher interfaces through its
 constructor. Original errors and caller cancellation are asserted, and the example's
 async resource is disposed exactly once per independently observed unit of work.
+
+
+## Approved checked construction
+
+The owner's subsequent autonomous instruction explicitly approves the proposed
+required construction boundary for unreleased interface helpers. Specify, Clarify,
+Plan, Tasks and Analyze are complete under Constitution 2.0.0; no decision remains
+pending. Published concrete APIs retain ordinary provider construction.
+
+Executed behavioural Red against compilable preparation stubs produced 18 failures;
+provider-factory stubs produced 3 failures with 4 existing valid cases passing.
+The preparation implementation then passed 25 focused tests. Eight explicit
+unprepared/stale-evidence cases failed against a stubbed boundary check and passed
+with the required diagnostic. This last focused correction used a stub after an
+initial candidate guard existed; it is not claimed as a first implementation Red.
+Compilation-only failures are not counted as Red. Ignored logs are
+artifacts/di-preparation-{red,green}.log, di-factory-red.log and di-boundary-red.log.
+
+Selections now carry immutable type requirements rather than closures over the
+original collection. Preparation validates the actual final descriptors, records
+owned descriptor identity, removes stale receipts, and returns an independent
+read-only copy. No handler activation or input mutation occurs. The host factory
+validates after container callbacks. All four modes have copied zero/one/two
+selection and independent-provider regressions, with keyed, lifetime, ownership,
+late replacement/removal, failure-atomicity and real Generic Host checks.
+
+## Delivery review
+
+Core source and dependencies are unchanged. Preparation, concrete ownership checks,
+and provider construction have separate responsibilities. Dispatcher contracts
+remain narrow; application operations receive interfaces by constructor injection.
+The factory delegates actual DI construction and preserves scope-validation options.
+Static callbacks retain no collection reference; receipts contain immutable data.
+No new runtime package, tool, baseline, exclusion or numerical threshold was added.
+British English, public XML contracts, ownership guidance and MIT metadata reviewed.
+
+Static advisory review: no type cycles; the Web/Worker namespace cycle is intentional
+within one example assembly, because its entry point invokes the worker and both
+use the shared example composition. It introduces no library dependency cycle.
+Cohesion's separate method groups reflect registration/execution, lifecycle methods,
+and factory delegation over the same owned state; splitting those protocols would
+obscure their responsibility. CompositionValidation's bounded descriptor traversal
+has complexity 6 and coupling 18, below the approved limits. Synthetic metrics
+compilation lacks external DI/xUnit references; the real warning-free SDK build
+remains mandatory. No diagnostic allowlist or guard was relaxed. Cognitive complexity
+and mutation results are not collected by the pinned tool, and are not claimed as
+passing. Remaining example startup branches are reviewed as harness-dependent;
+HTTP and finite worker execution are exercised by the verifier as well as tests.
+
+
+## Complete approved-candidate verification
+
+Run `verify-20261029T212612Z-400b618593e241fdabb37f4f81d3f3de` passed all
+11 stages against the working tree based on `082c5d5f286c6ca7a2ddf129ee4926c37f9f79cd`.
+The sorted path/content SHA-256 over src, tests, examples and scripts, excluding bin
+and obj, is `413cb40961da71a1a76190ad95ae9d231cd5ab092463835f5ad57cf0198f05a5`. Subsequent delivery edits concern evidence only.
+SDK 10.0.403, PowerShell 7.6.9, static tool 0.1.0 and coverage tool 0.1.1 were used.
+187 tests passed with zero failures/skips. Both libraries achieved 100% lines and
+branches independently. Complete scope: 70 files/types, 84 members; 99.0% lines
+(415/419), 93.8% branches (122/130), 100% changed lines and 97.8% changed branches
+against origin/main at e5eabfe. No coverage findings, exclusions or unreported members.
+Static measurement passed all 136 handwritten C# files with no violations.
+The real Release build had zero warnings/errors. Audit reported no known vulnerable
+packages in all five projects. Published old consumer binary and unchanged source,
+standalone and HTTP/worker examples, and isolated consumers of both packages passed.
+Packages were built locally for verification; nothing was published to NuGet.

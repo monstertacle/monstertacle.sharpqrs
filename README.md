@@ -59,16 +59,42 @@ Existing handler-interface services can be selected explicitly instead:
 ```csharp
 services.AddScoped<ICommandHandler<MyCommand, MyResult>, MyCommandHandler>();
 services.AddSharpQrsCommand<MyCommand, MyResult>();
+await using var provider = services.PrepareSharpQrs().BuildServiceProvider(
+    new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
 ```
 
 This selects exactly one unkeyed handler service without activating it. Decorators
 and existing service lifetimes are preserved. Missing or ambiguous services fail
-explicitly; selection is validated during setup and scoped dispatcher construction.
-Register services before selecting mappings and finish configuration before building
-the provider. Query handlers have the corresponding two-argument helper. There is
+explicitly. Interface mappings require checked construction: register services and
+mappings, finish configuration, then build from `PrepareSharpQrs()`'s returned
+read-only copy. Preparation checks the actual final descriptors without activating
+handlers and leaves the original collection unchanged. Copied/customised collections
+must be prepared again immediately before building; copied old preparation evidence
+is replaced. Building interface mappings without preparation fails with migration
+instructions when their dispatcher is resolved. Query handlers have the corresponding two-argument helper. There is
 no implicit discovery. Standalone setup can use `ICommandRegistration` and
 `IQueryRegistration`, leaving runtime consumers dependent on dispatch alone.
 See the [web example](examples/Web/README.md).
+
+For Generic Host or ASP.NET Core, use the wrapper so validation runs after final
+container configuration:
+
+```csharp
+builder.Host.UseServiceProviderFactory(new SharpQrsServiceProviderFactory(
+    new DefaultServiceProviderFactory(new ServiceProviderOptions
+    {
+        ValidateScopes = true,
+        ValidateOnBuild = true
+    })));
+```
+
+The host supplies the inner factory; the integration still depends only on DI
+abstractions. It must accept a read-only service collection during provider creation.
+Existing published concrete-only registrations continue to support ordinary
+`BuildServiceProvider`. Use preparation for complete final validation of those
+registrations too: late additions, replacement or removal of owned concrete or
+dispatcher descriptors are then rejected. Setup-time checks alone cannot stop later
+container overrides. See [migration and composition guidance](docs/di-composition.md).
 
 ## Synchronous usage
 

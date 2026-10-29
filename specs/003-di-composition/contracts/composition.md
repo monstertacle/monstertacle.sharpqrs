@@ -1,4 +1,4 @@
-# Proposed checked composition boundary
+# Approved checked composition boundary
 
 The additive setup API is `IServiceCollection PrepareSharpQrs(this IServiceCollection
 services)`. It validates the final collection without activating services and returns
@@ -22,7 +22,7 @@ builder.Host.UseServiceProviderFactory(
     new SharpQrsServiceProviderFactory(new DefaultServiceProviderFactory(options)));
 ```
 
-Proposed strict path: interface mappings require prepared metadata. Without it,
+Approved strict path: interface mappings require prepared metadata. Without it,
 resolution throws a diagnostic directing the caller to the checked boundary,
 instead of pretending to validate a collection the provider does not expose.
 Existing published concrete-only registration remains supported with the ordinary

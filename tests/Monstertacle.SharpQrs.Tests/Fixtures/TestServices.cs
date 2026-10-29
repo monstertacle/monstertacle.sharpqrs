@@ -10,7 +10,7 @@ public static class TestServices
             : services.AddSharpQrsCommand<EchoCommand, EchoResult, EchoCommandHandler>();
 
     public static ServiceProvider BuildValidated(this IServiceCollection services)
-        => services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+        => services.PrepareSharpQrs().BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
 
     public static Task<EchoResult> DispatchEcho(this IServiceProvider provider, bool query)
         => query ? provider.GetRequiredService<IQueryDispatcher>().DispatchAsync(new EchoQuery("echo"))

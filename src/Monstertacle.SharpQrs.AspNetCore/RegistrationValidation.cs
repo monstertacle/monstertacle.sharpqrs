@@ -19,7 +19,7 @@ internal static class RegistrationValidation
     internal static void Handler(IServiceCollection services, Type handler)
     {
         Infrastructure(services);
-        HandlerTypeValidation.Validate(services, handler);
+        ConcreteHandlerRegistration.Validate(services, handler);
     }
 
     internal static void Mapping(IServiceCollection services, Type request, bool query)

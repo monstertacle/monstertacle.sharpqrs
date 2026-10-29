@@ -9,7 +9,7 @@ public static class WorkerDemo
 
     public static IHostBuilder CreateBuilder()
         => Host.CreateDefaultBuilder()
-            .UseDefaultServiceProvider(options => { options.ValidateScopes = true; options.ValidateOnBuild = true; })
+            .UseServiceProviderFactory(ExampleComposition.CreateFactory())
             .ConfigureServices(ConfigureServices);
 
     public static async Task<IReadOnlyList<WorkerObservation>> RunAsync(IHostBuilder builder, CancellationToken cancellationToken = default)
