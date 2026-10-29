@@ -20,7 +20,8 @@ Verification uses locked restore, warnings-as-errors Release builds, behavioural
 tests, at least 90% line coverage **in each library**, the strict full-source
 Codemetr guard, a dependency vulnerability audit, runnable examples and isolated
 NuGet package consumers. Reports are written to a fresh ignored `artifacts/verify-*`
-directory. Windows and Linux CI run the same script. Packages are not published.
+directory. Windows and Linux CI run the same script. Publishing uses the separate
+[manual NuGet release workflow](.github/RELEASING.md).
 
 ## Standalone usage
 
