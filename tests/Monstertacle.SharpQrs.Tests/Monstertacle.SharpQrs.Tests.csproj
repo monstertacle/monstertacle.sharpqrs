@@ -9,6 +9,6 @@
     <PackageReference Include="xunit" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" PrivateAssets="all" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
-    <PackageReference Include="coverlet.msbuild" PrivateAssets="all" />
+    <PackageReference Include="coverlet.collector" PrivateAssets="all" />
   </ItemGroup>
 </Project>

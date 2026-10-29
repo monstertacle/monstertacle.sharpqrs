@@ -3,7 +3,7 @@
 Use .NET SDK 10.0.403, C# 14 and PowerShell 7. The SDK pin disables roll-forward
 and prereleases. All five projects target `net10.0`; central package versions
 and each project's lock file are committed. The test project uses xUnit v2 with
-VSTest and Coverlet MSBuild, not Microsoft.Testing.Platform.
+VSTest and Coverlet collector, not Microsoft.Testing.Platform.
 Package pruning is disabled only in the test project to retain the explicitly
 planned DI 10.0.14 dependency alongside the shared framework without NU1510.
 
@@ -74,3 +74,14 @@ remote. Implementation instead read the clean local `codemetr/skills` checkout a
 `plugins/codemetr-csharp/skills/{guard,analyze}/SKILL.md` and
 `plugins/codemetr-csharp/references/tool.md`. These sources guide local development;
 no host plugin installation or unavailable specialist activation is claimed.
+
+## Coverage collection on Windows and Linux
+
+The test-only package `coverlet.collector` 10.1.0 uses VSTest's in-process completion
+handshake. The initial MSBuild driver could lose coverage hits when VSTest terminated
+the Windows test host during shutdown. The collector retains the same package version,
+MIT licence, complete production-assembly scope and per-library coverage thresholds.
+`coverage.runsettings` includes both production assemblies with auto-properties enabled
+and no hand-written source exclusions. The verifier requires exactly one GUID-scoped
+collector report, ignores TRX attachment mirrors, and preserves the report contents
+before applying the existing freshness and coverage checks.

@@ -1,6 +1,6 @@
 # Implementation evidence
 
-Updated: 2026-10-28T22:49:04Z
+Updated: 2026-10-29T05:57:55Z
 
 ## Authority, phase review and scope
 
@@ -186,7 +186,50 @@ both categories and usage modes. The mapping above identifies their actual locat
 
 ## Fresh checkout and hosted CI
 
-Pending the first authorised implementation commit and push. T052, T057, T059 and
-T060 remain unchecked until the required committed/hosted evidence exists.
-No unresolved implementation finding is being silently deferred; these are the
-remaining execution gates of this same feature, not separate future work.
+The first implementation commit `2d3e40d34ea8933d5a1d940c5fe01da1c9054327` was
+pushed. Its full verification passed in a clean fresh checkout in run
+`verify-20261028T224933Z-83bf64c5424e4307a810882065de5b1b`; the source manifest
+matched every candidate input. The documented web command and both HTTP calls were
+also executed successfully from that checkout, then its host was stopped.
+
+Hosted [run 40782893460](https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40782893460)
+passed Linux. Windows passed the build and all 87 tests but lost MSBuild coverage
+hits during test-host shutdown, reporting zero coverage. The gate correctly failed.
+This is the remaining finding within T052/T057, not a completed platform check.
+The CI repair below remains part of the original feature's acceptance work.
+
+
+## CI coverage repair
+
+Recorded: 2026-10-29T05:57:55Z
+
+Owner: current implementation session, responding to the user's CI-repair request.
+Origin: Windows job `123148756435` in hosted run `40782893460`, with missing-hit-file
+warnings despite 87 passing tests. The requested repair resumes the already described
+collector proposal. See the research amendment for upstream guidance and licence.
+
+Replaced only the private test coverage driver with `coverlet.collector` 10.1.0.
+Production sources and public contracts are unchanged. The regenerated lock file
+is audited. VSTest, .NET SDK, Test SDK, xUnit, metric limits and coverage thresholds
+retain their existing versions and values. `coverage.runsettings` includes both
+complete production assemblies, with auto-property measurement and no source exclusions.
+
+New report-discovery behaviour followed Red/Green: a compilable function stub failed
+`tests/Scripts/Verify.Tests.ps1` at the missing-report assertion, then the implementation
+passed missing/unique/ambiguous/existing-output cases. A real collector run exposed
+the TRX attachment mirror; adding that fixture produced a second behavioural Red
+(`Expected exactly one collector report, found 2`). Selecting GUID-scoped collector
+output made the regression pass while retaining rejection of multiple original reports.
+These deterministic tests plus the real Windows coverage gate decide this repair;
+no judgement-only claim or metrics-policy relaxation is involved.
+
+The complete local entry point passed in `verify-20261029T055634Z-33e813665d3d47e8bc2a7df06a04b71d` against
+base `2d3e40d` with the repair working tree: 87/87 tests, 100% line coverage for each
+production library, 100% core / 97.36% integration branch coverage, all 71 C# files
+passing Codemetr, no known solution-package vulnerabilities, both runnable examples
+and isolated package consumers passing. The existing coverage-checker cases passed.
+
+A [new repair source manifest](review/ci-collector-source-manifest.json) freezes the
+updated inputs; the original reviewed manifest remains intact. Remaining steps:
+commit/push the candidate, verify its clean fresh checkout and require both hosted
+Windows/Linux jobs to pass before closing T052, T057, T059 and T060.

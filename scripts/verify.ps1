@@ -17,6 +17,20 @@ function Invoke-CheckedCommand {
     & $Executable @Arguments | ForEach-Object { Write-Host $_ }
     if ($LASTEXITCODE -ne 0) { throw "$Executable failed with exit $LASTEXITCODE; arguments: $Arguments" }
 }
+function Publish-CoverageReport {
+    param([string]$Directory)
+    $destination = Join-Path $Directory 'coverage.cobertura.xml'
+    if (Test-Path -LiteralPath $destination) { throw 'Coverage output must be fresh.' }
+    # Collector output is directly inside a GUID directory. TRX's machine-specific
+    # attachment mirrors are copies of this report, not additional collection runs.
+    $reports = @(Get-ChildItem -LiteralPath $Directory -Directory | Where-Object {
+        $identifier = [guid]::Empty
+        [guid]::TryParse($_.Name, [ref]$identifier)
+    } | ForEach-Object { Get-ChildItem -LiteralPath $_.FullName -File -Filter 'coverage.cobertura.xml' })
+    if ($reports.Count -ne 1) { throw "Expected exactly one collector report, found $($reports.Count)." }
+    Copy-Item -LiteralPath $reports[0].FullName -Destination $destination
+    return $destination
+}
 function Invoke-RepositoryVerification {
     $root = Split-Path $PSScriptRoot -Parent
     Push-Location $root
@@ -44,8 +58,9 @@ function Invoke-RepositoryVerification {
                 'build' { Invoke-CheckedCommand 'dotnet' @('build', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-restore') }
                 'tests' {
                     Invoke-CheckedCommand 'dotnet' @('test', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-build', '--no-restore',
-                        '--results-directory', $run, '--logger', 'trx;LogFileName=tests.trx', '/p:CollectCoverage=true',
-                        '/p:Include=[Monstertacle.SharpQrs*]*', "/p:CoverletOutput=$run/", '/p:CoverletOutputFormat=cobertura')
+                        '--results-directory', $run, '--logger', 'trx;LogFileName=tests.trx',
+                        '--collect', 'XPlat Code Coverage', '--settings', 'coverage.runsettings')
+                    Publish-CoverageReport $run | Out-Null
                     [xml]$trx = Get-Content "$run/tests.trx" -Raw
                     if ([int]$trx.TestRun.ResultSummary.Counters.executed -le 0 -or [int]$trx.TestRun.ResultSummary.Counters.failed -ne 0) { throw 'No passing executed tests.' }
                 }

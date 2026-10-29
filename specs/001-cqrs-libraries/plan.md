@@ -33,7 +33,7 @@ consumers use their normal shared framework; no HTTP dependency is imposed on th
 
 **Testing**: One `Monstertacle.SharpQrs.Tests` project referencing both production
 libraries: xUnit 2.9.3, Microsoft.NET.Test.Sdk 18.11.0,
-xunit.runner.visualstudio 4.0.1, coverlet.msbuild 10.1.0,
+xunit.runner.visualstudio 4.0.1, coverlet.collector 10.1.0,
 Microsoft.Extensions.DependencyInjection 10.0.14 and Microsoft.AspNetCore.TestHost
 10.0.14. Use VSTest, not Microsoft.Testing.Platform. Test dependencies are private
 and the project is not packable. See [research.md](research.md).
@@ -233,7 +233,7 @@ loosening limits just to pass. Do not game metrics by fragmenting coherent code.
 - Commit central versions and per-project `packages.lock.json`; restore locked in
   verification. Use nuget.org as the explicit package source; no sibling-repository
   feeds or tool builds. CI provisions the exact SDK and PowerShell runtime.
-- VSTest runs the one test project with Coverlet MSBuild integration. Filter coverage
+- VSTest runs the one test project with Coverlet collector integration. Filter coverage
   to the two production assemblies, never to selected production types or source files.
   Require each expected assembly to be present with measured executable lines and
   at least 90% line coverage; a total average is insufficient. Report branch counts
