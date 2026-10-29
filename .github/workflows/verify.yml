@@ -47,7 +47,8 @@ jobs:
           "TEMP=$temporary" >> $env:GITHUB_ENV
       - name: Complete verification
         run: |
-          $base = if ($env:PR_BASE_SHA) { $env:PR_BASE_SHA } else { git rev-parse HEAD^ }
+          $candidate = if ($env:PR_BASE_SHA) { $env:PR_BASE_SHA } else { 'HEAD^' }
+          $base = git rev-parse --verify "${candidate}^{commit}"
           if ($LASTEXITCODE -ne 0) { throw 'Unable to resolve coverage comparison base.' }
           ./scripts/verify.ps1 -PackageVersion $env:PACKAGE_VERSION -CoverageBase $base
       - name: Retain verification evidence

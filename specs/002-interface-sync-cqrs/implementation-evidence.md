@@ -99,3 +99,19 @@ Mutation testing was not collected and has no passing score.
 No unresolved actionable acceptance blocker remains locally. CI on the committed
 revision, PR completion and final source provenance remain T017 work; package
 publication is outside this feature.
+
+
+## Committed-source and CI follow-through
+
+The complete verifier also passed with a clean working tree at implementation commit
+`504359086deb7f09bfde471bc46d7db4cdc06921`, recorded under
+`artifacts/verify-20261029T194359Z-a139e6413bd440fd9741868add290a14`.
+
+The first hosted PR run exposed a workflow-only comparison-base error: when a PR
+base SHA was supplied, no native command had set PowerShell's LASTEXITCODE, and
+comparing its null value to zero rejected a valid base before verification began.
+The workflow now always resolves the selected candidate with `git rev-parse --verify`
+and checks that command's actual exit. The actual extracted workflow snippet was
+executed in clean PowerShell processes for PR SHA, push-parent fallback and an
+invalid ref: both valid paths resolved and the invalid ref failed. This is a
+mechanical workflow correction; no product contract or threshold changed.
