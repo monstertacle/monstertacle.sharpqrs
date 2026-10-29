@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "lineCoverage": 90,
+    "branchCoverage": 0,
+    "typeLineCoverage": 0,
+    "memberLineCoverage": 0,
+    "diffLineCoverage": 90,
+    "diffBranchCoverage": 0,
+    "crapScore": 30
+  },
+  "exclude": [],
+  "unreported": "zero",
+  "test": {
+    "configuration": "Release"
+  },
+  "worklist": {
+    "line": 90,
+    "branch": 0,
+    "level": "member"
+  }
+}

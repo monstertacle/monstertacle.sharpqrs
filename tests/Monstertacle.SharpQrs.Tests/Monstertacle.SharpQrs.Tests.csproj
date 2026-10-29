@@ -3,6 +3,8 @@
   <ItemGroup>
     <ProjectReference Include="../../src/Monstertacle.SharpQrs/Monstertacle.SharpQrs.csproj" />
     <ProjectReference Include="../../src/Monstertacle.SharpQrs.AspNetCore/Monstertacle.SharpQrs.AspNetCore.csproj" />
+    <ProjectReference Include="../../examples/Standalone/Standalone.csproj" />
+    <ProjectReference Include="../../examples/Web/Web.csproj" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" PrivateAssets="all" />

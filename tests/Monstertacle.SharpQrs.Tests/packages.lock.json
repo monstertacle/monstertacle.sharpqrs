@@ -118,6 +118,18 @@
           "Monstertacle.SharpQrs": "[0.1.0-alpha.1, )"
         }
       },
+      "standalone": {
+        "type": "Project",
+        "dependencies": {
+          "Monstertacle.SharpQrs": "[0.1.0-alpha.1, )"
+        }
+      },
+      "web": {
+        "type": "Project",
+        "dependencies": {
+          "Monstertacle.SharpQrs.AspNetCore": "[0.1.0-alpha.1, )"
+        }
+      },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "CentralTransitive",
         "requested": "[10.0.14, )",

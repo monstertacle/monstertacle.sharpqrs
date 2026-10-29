@@ -2,7 +2,7 @@ namespace Monstertacle.SharpQrs;
 
 /// <summary>A standalone command dispatcher with instance-local registrations and caller-owned handlers.</summary>
 /// <remarks>Finish registration before dispatch. Concurrent registration is unsupported; concurrent dispatch does not imply handler thread safety.</remarks>
-public sealed class CommandDispatcher : ICommandDispatcher
+public sealed class CommandDispatcher : ICommandDispatcher, ICommandRegistration
 {
     private readonly DispatchRegistry registry = new();
 

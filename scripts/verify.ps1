@@ -1,16 +1,16 @@
-param([string]$PackageVersion)
+param([string]$PackageVersion, [string]$CoverageBase = 'origin/main')
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot/package-version.ps1"
 function Invoke-VerificationStages {
     param([scriptblock]$Runner)
-    foreach ($stage in @('restore', 'build', 'tests', 'coverage', 'metrics', 'audit', 'standalone', 'web', 'packages')) {
+    foreach ($stage in @('restore', 'build', 'tests', 'coverage', 'cover', 'compatibility', 'metrics', 'audit', 'standalone', 'web', 'packages')) {
         $result = & $Runner $stage
         if ($result -ne 0) { throw "Verification stage $stage failed with exit $result." }
     }
 }
 function Assert-VerificationScripts {
     param([string]$Root)
-    foreach ($name in @('coverage', 'metrics', 'audit', 'packages', 'web')) {
+    foreach ($name in @('coverage', 'cover', 'compatibility', 'metrics', 'audit', 'packages', 'web')) {
         if (-not (Test-Path -LiteralPath (Join-Path $Root "scripts/check-$name.ps1"))) { throw "Missing mandatory $name checker." }
     }
 }
@@ -39,7 +39,7 @@ function Invoke-RepositoryVerification {
     try {
         $version = Resolve-PackageVersion $PackageVersion $root
         Assert-VerificationScripts $root
-        foreach ($name in @('CheckCoverage', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'PackageVersion', 'ReleasePackages', 'Verify')) {
+        foreach ($name in @('CheckCoverage', 'CheckCover', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'PackageVersion', 'ReleasePackages', 'Verify')) {
             Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', "tests/Scripts/$name.Tests.ps1")
         }
         $started = [datetime]::UtcNow
@@ -48,7 +48,7 @@ function Invoke-RepositoryVerification {
         $revision = & git rev-parse HEAD
         if ($LASTEXITCODE -ne 0) { throw 'Unable to identify source revision.' }
         $manifest = [ordered]@{ revision = $revision; startedUtc = $started.ToString('o'); sdk = (& dotnet --version)
-            powershell = $PSVersionTable.PSVersion.ToString(); packageVersion = $version; status = 'running'; workingTree = (& git status --porcelain) }
+            powershell = $PSVersionTable.PSVersion.ToString(); packageVersion = $version; coverageBase = $CoverageBase; status = 'running'; workingTree = (& git status --porcelain) }
         $manifest | ConvertTo-Json -Depth 5 | Set-Content "$run/run.json"
         Invoke-VerificationStages {
             param($stage)
@@ -68,6 +68,8 @@ function Invoke-RepositoryVerification {
                     if ([int]$trx.TestRun.ResultSummary.Counters.executed -le 0 -or [int]$trx.TestRun.ResultSummary.Counters.failed -ne 0) { throw 'No passing executed tests.' }
                 }
                 'coverage' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-coverage.ps1', '-ReportPath', "$run/coverage.cobertura.xml", '-NotBefore', $started.ToString('o')) }
+                'cover' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-cover.ps1', '-Directory', $run, '-BaseRevision', $CoverageBase, '-NotBefore', $started.ToString('o')) }
+                'compatibility' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-compatibility.ps1', '-OutputDirectory', $run) }
                 'metrics' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-metrics.ps1', '-ReportPath', "$run/metrics.json") }
                 'audit' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-audit.ps1', '-OutputDirectory', $run) }
                 'standalone' { Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Standalone', '-c', 'Release', '--no-build', '--no-restore') }
