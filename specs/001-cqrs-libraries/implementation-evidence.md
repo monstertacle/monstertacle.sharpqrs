@@ -1,6 +1,6 @@
 # Implementation evidence
 
-Updated: 2026-10-29T06:01:17Z
+Updated: 2026-10-29T06:04:36Z
 
 ## Authority, phase review and scope
 
@@ -176,7 +176,7 @@ not an undisclosed passing result.
 | QC-003 | Separate 100% production line coverage, branch review and checker harness |
 | QC-004 | Approved full-scope metrics guard, inventory/partial checks, advisory review |
 | QC-005–QC-006 | Language/licence review, pinned skill/tool provenance, shared local/CI entry point |
-| SC-004 | Package-only consumers passed; committed fresh-checkout verification pending below |
+| SC-004 | Package-only consumers and clean committed fresh-checkout verification passed; see final acceptance below |
 
 Some planned test filenames were consolidated by cohesive behaviour rather than
 creating duplicate test copies: ownership includes isolation; cancellation includes
@@ -263,3 +263,39 @@ Full local verification passed in `verify-20261029T060030Z-a5b1d21b05c2424abd363
 87 tests, both libraries at 100% lines, the metrics/audit gates, web/standalone and both
 isolated package consumers all passed. The [follow-up source manifest](review/ci-windows-source-manifest.json)
 freezes these inputs separately from the previous collector candidate.
+
+
+## Final verification and finding disposition
+
+Recorded: 2026-10-29T06:04:36Z
+
+Clean fresh checkout `e2f3b26705b725e0bb50546aa8dd5e908672763c` passed the full entry
+point in `verify-20261029T060139Z-7b030d6c690f4e4daf6e507e9f9abe21` with a clean
+working tree and every follow-up source-manifest input matching. The previously
+executed manual quickstart HTTP commands exercise unchanged example sources;
+the new checkout also passed both live routes through the mandatory smoke check.
+SC-004 and T059 are fulfilled without sibling source inputs.
+
+Hosted [run 40826717973](https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40826717973)
+completed successfully for that source revision on **Windows 2025 and Ubuntu 24.04**.
+Both downloaded verification artefacts were inspected: each records status `passed`,
+87/87 tests, 100% line coverage per library, 100% core / 97.36% integration branch
+coverage and all 71 C# files/types passing the unchanged metrics guard. Both jobs
+also passed the source/lock-reconciled dependency audit, example smoke checks and
+standalone/integrated package-only consumers. The [CI record](review/ci-results.json)
+retains source SHA, job links/times, run identities, counts and measured scope.
+
+| Origin finding | Disposition | Change and proof |
+| --- | --- | --- |
+| Original Windows MSBuild coverage hit loss, run 40782893460 | Resolved | Collector integration in 677426a; complete Windows coverage measured in 40826389655 and 40826717973 |
+| TRX attachment mirrors counted as additional collection runs | Resolved | GUID-scoped report selection in 677426a, executable Red/Green report-discovery regression and both platform runs |
+| Windows package-consumer NU1301, run 40826389655 | Resolved | XML-safe temporary NuGet configuration in e2f3b26, Red/Green config regression and complete package consumers in 40826717973 |
+| Missing committed fresh-checkout / hosted acceptance evidence | Resolved | Clean e2f3b26 checkout and the two successful hosted jobs above |
+
+No implementation or acceptance-blocking finding remains open; no follow-up plan
+is needed for these resolved findings. The original planned limits still apply:
+synthetic external-symbol metric diagnostics and uncollected mutation testing are
+explicitly reported review boundaries, not hidden passing measurements. Production
+sources, public contracts and their prior SOLID/language/licence reviews are unchanged.
+All 60 implementation/verification tasks are complete and the work is ready for
+owner acceptance. There is no package publication or merge as part of this work.

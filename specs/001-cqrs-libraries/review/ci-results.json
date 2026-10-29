@@ -1,0 +1,111 @@
+{
+  "databaseId": 40826717973,
+  "headSha": "e2f3b26705b725e0bb50546aa8dd5e908672763c",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40826717973",
+  "jobs": [
+    {
+      "databaseId": 123291323603,
+      "name": "verify (ubuntu-24.04)",
+      "conclusion": "success",
+      "startedAt": "2026-10-29T06:01:23Z",
+      "completedAt": "2026-10-29T06:02:28Z",
+      "url": "https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40826717973/job/123291323603"
+    },
+    {
+      "databaseId": 123291323977,
+      "name": "verify (windows-2025)",
+      "conclusion": "success",
+      "startedAt": "2026-10-29T06:01:23Z",
+      "completedAt": "2026-10-29T06:02:59Z",
+      "url": "https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40826717973/job/123291323977"
+    }
+  ],
+  "artefacts": [
+    {
+      "name": "verification-ubuntu-24.04",
+      "run": {
+        "revision": "e2f3b26705b725e0bb50546aa8dd5e908672763c",
+        "startedUtc": "2026-10-29T06:01:32.4852713Z",
+        "sdk": "10.0.403",
+        "powershell": "7.6.9",
+        "status": "passed",
+        "workingTree": null,
+        "finishedUtc": "2026-10-29T06:02:25.5931939Z"
+      },
+      "tests": {
+        "total": 87,
+        "executed": 87,
+        "passed": 87,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "coverage": [
+        {
+          "name": "Monstertacle.SharpQrs",
+          "line-rate": "1",
+          "branch-rate": "1"
+        },
+        {
+          "name": "Monstertacle.SharpQrs.AspNetCore",
+          "line-rate": "1",
+          "branch-rate": "0.9736"
+        }
+      ],
+      "metrics": {
+        "files": 71,
+        "types": 71,
+        "violations": 0,
+        "new": 0,
+        "worsened": 0,
+        "baselined": 0,
+        "stale": 0,
+        "parseErrors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "verification-windows-2025",
+      "run": {
+        "revision": "e2f3b26705b725e0bb50546aa8dd5e908672763c",
+        "startedUtc": "2026-10-29T06:02:08.3185030Z",
+        "sdk": "10.0.403",
+        "powershell": "7.6.7",
+        "status": "passed",
+        "workingTree": null,
+        "finishedUtc": "2026-10-29T06:02:52.9954465Z"
+      },
+      "tests": {
+        "total": 87,
+        "executed": 87,
+        "passed": 87,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "coverage": [
+        {
+          "name": "Monstertacle.SharpQrs.AspNetCore",
+          "line-rate": "1",
+          "branch-rate": "0.9736"
+        },
+        {
+          "name": "Monstertacle.SharpQrs",
+          "line-rate": "1",
+          "branch-rate": "1"
+        }
+      ],
+      "metrics": {
+        "files": 71,
+        "types": 71,
+        "violations": 0,
+        "new": 0,
+        "worsened": 0,
+        "baselined": 0,
+        "stale": 0,
+        "parseErrors": 0,
+        "skipped": 0
+      }
+    }
+  ]
+}

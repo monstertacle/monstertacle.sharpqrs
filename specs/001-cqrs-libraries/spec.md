@@ -3,7 +3,7 @@
 **Feature Branch**: `feature/001-cqrs-libraries` (created during authorised implementation).
 **Feature ID**: `001-cqrs-libraries`
 **Created**: 2026-10-28
-**Status**: Implemented and locally verified; committed/hosted acceptance gates tracked in implementation-evidence.md.
+**Status**: Implemented and verified locally, from a clean committed checkout and in hosted Windows/Linux CI; ready for owner acceptance.
 **Governing Constitution**: 2.0.0, ratified on 2026-10-28.
 **Input**: Provide a general-purpose CQRS library based on the local CQRS approach in
 SharpClaw, with independent core functionality in one library and ASP.NET Core-specific

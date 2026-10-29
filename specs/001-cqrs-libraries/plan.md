@@ -3,8 +3,9 @@
 **Feature**: `001-cqrs-libraries` | **Date**: 2026-10-28 | **Spec**: [spec.md](spec.md)
 **Branch**: `feature/001-cqrs-libraries`; Spec Kit feature identifier `001-cqrs-libraries`.
 **Status**: Implementation, metrics profile and local tool installation authorised.
-Implementation and full local verification passed; committed/hosted execution gates
-are tracked in [implementation-evidence.md](implementation-evidence.md).
+Implementation, local verification, clean committed fresh checkout and hosted
+Windows/Linux verification passed. Evidence and resolved CI findings are recorded
+in [implementation-evidence.md](implementation-evidence.md).
 
 ## Summary
 
