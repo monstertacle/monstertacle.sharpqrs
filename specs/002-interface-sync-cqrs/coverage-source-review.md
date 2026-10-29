@@ -21,9 +21,13 @@ not install the coverage executable or enforce a repository check.
 
 - The separate executable package is `Codemetr.CSharp.Cover.Tool`; its command is
   `codemetr-csharp-cover`. It requires .NET 10, compatible with this repository.
-- Plugin guidance targets tool 0.1.0; the current upstream README shows a report
-  example labelled 0.1.1. Neither is evidence of an installed executable. Planning
-  must confirm a published version and pin it in the existing local tool manifest.
+- Direct verification of the public NuGet V3 index confirms published executable
+  versions **0.1.0** and **0.1.1**. The planned executable version is **0.1.1**;
+  the marketplace plugin remains **0.1.0**. Plugin setup examples targeting tool
+  0.1.0 do not override the selected executable version. Planning must pin 0.1.1
+  in the existing local tool manifest and verify its command behaviour.
+  Source: [published tool](https://www.nuget.org/packages/Codemetr.CSharp.Cover.Tool/0.1.1),
+  checked against `https://api.nuget.org/v3-flatcontainer/codemetr.csharp.cover.tool/index.json`.
 - Existing tests already use VSTest and Coverlet collector. No test-platform switch
   is required by the documented integration.
 - Existing verification creates Cobertura and TRX files. The tool supports reading

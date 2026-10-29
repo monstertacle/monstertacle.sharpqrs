@@ -220,7 +220,8 @@ the same complete verification on Linux and Windows, including negative fixtures
   approved scope change and migration guidance.
 - The coverage request authorises marketplace plugin installation and proposes a
   pinned development-only coverage tool; it adds no runtime library dependency.
-  Exact executable version and gate configuration must be verified during Plan.
+  The selected executable version is 0.1.1 (published on NuGet); plugin version
+  remains 0.1.0. Command behaviour and gate configuration must be verified during Plan.
   No new numerical threshold, baseline or package publication is authorised here.
 - No blocking requirements question was identified during Specify. Clarify must
   still assess these assumptions after the user approves the transition.
