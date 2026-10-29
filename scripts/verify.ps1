@@ -73,7 +73,10 @@ function Invoke-RepositoryVerification {
                 'metrics' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-metrics.ps1', '-ReportPath', "$run/metrics.json") }
                 'audit' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-audit.ps1', '-OutputDirectory', $run) }
                 'standalone' { Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Standalone', '-c', 'Release', '--no-build', '--no-restore') }
-                'web' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-web.ps1', '-OutputDirectory', $run) }
+                'web' {
+                    Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-web.ps1', '-OutputDirectory', $run)
+                    Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Web', '-c', 'Release', '--no-build', '--no-restore', '--', '--worker')
+                }
                 'packages' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-packages.ps1', '-OutputDirectory', $run, '-PackageVersion', $version) }
             }
             return 0

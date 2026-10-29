@@ -1,6 +1,6 @@
 # DI composition corrections and usage guidance
 
-**Status**: ready for specification and design; implementation not started
+**Status**: done
 **Owner**: SharpQrs repository maintainer, Alexander Bleissem
 **Origin**: [opposing architecture review](../reviews/2026-10-29-cqrs-di-review.md)
 **Reviewed baseline**: `9216f275256afcd70c6dec44cf9651d7cf12f837`
@@ -55,13 +55,10 @@ is included merely because this review identified improvements.
 
 ## Readiness and dependencies
 
-DI-001 has a reproduced trigger and an identified internal separation. DI-002 has
-reproducers and acceptance criteria; its remaining technical decision is the
-provider-specific validation boundary. The next step is the bounded design probe
-in step 3, owned by the repository maintainer. UX-001's final guarantee depends on
-that choice. UX-002 can be specified independently, but its final recipes must
-reflect the chosen composition boundary. This is a concrete design work item,
-not approval to impose a new public provider factory or break existing consumers.
+The owner explicitly approved the required checked construction boundary in the
+subsequent autonomous implementation instruction. Feature 003 completes all phases
+and implements preparation plus host-factory integration. No architectural decision
+or external dependency remains open. Publication remains outside this task.
 
 ## Acceptance criteria
 
@@ -84,3 +81,25 @@ not approval to impose a new public provider factory or break existing consumers
   audit, sample and package-consumer checks pass locally and on Windows/Linux.
 - Every finding above receives a tested fix or a documented accountable scope decision.
   No finding is dismissed solely because the old line coverage was 100%.
+
+
+## Finding dispositions and active feature
+
+[Feature 003](../../specs/003-di-composition/spec.md) and its
+[implementation evidence](../../specs/003-di-composition/implementation-evidence.md)
+carry the fixes and executed checks. Historical review evidence is unchanged.
+
+| Finding | Disposition | Regression evidence |
+| --- | --- | --- |
+| DI-001 | Fixed: shared concrete validation is independent of execution-mode infrastructure | ModeIsolationTests; existing same-mode conflict and mixed-mode tests |
+| DI-002 | Fixed at the approved checked boundary: immutable requirements validate the final copied collection; no captured source collection | CompositionCopyTests, PreparationBoundaryTests, ProviderFactoryTests; all four modes |
+| UX-001 | Fixed and bounded explicitly: preparation checks owned identity and uniqueness; published ordinary construction retains setup-time checks | ConcretePreparationTests and legacy source/binary consumers; docs/di-composition.md |
+| UX-002 | Fixed: scoped worker application operation, decorated handler, disposal and multi-contract guidance | WorkerExampleTests, finite CLI and HTTP examples, ownership documentation |
+
+Copying prepared receipts while bypassing fresh preparation is explicitly outside
+the approved setup contract. This is an owner-approved boundary, documented in the
+composition contract and migration guidance; no private provider reflection or
+eager activation is introduced to support that bypass. All four accepted origin
+findings have concrete corrections and checks; no actionable origin finding is
+left without a disposition. All current-head Windows/Linux push and PR checks passed before merge.
+The completed delivery is recorded in the feature implementation evidence.

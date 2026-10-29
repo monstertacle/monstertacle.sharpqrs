@@ -38,10 +38,7 @@ public sealed class SynchronousRegistrationTests
         var before = services.ToArray();
         Assert.Throws<InvalidOperationException>(() => Select(services, query));
         Assert.Equal(before, services);
-        using var provider = services.BuildValidated();
-        using var scope = provider.CreateScope();
-        var type = query ? typeof(ISyncQueryDispatcher) : typeof(ISyncCommandDispatcher);
-        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetRequiredService(type));
+        Assert.Throws<InvalidOperationException>(() => services.BuildValidated());
     }
 
     [Fact]

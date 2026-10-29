@@ -38,9 +38,10 @@ public static class SharpQrsSynchronousExtensions
         HandlerServiceSelection.Validate<ISyncCommandHandler<TCommand, TResult>>(services);
         SyncRegistrationValidation.Mapping(services, typeof(TCommand), false);
         services.AddSharpQrsSynchronous();
-        services.AddSingleton(new SyncCommandHandlerRegistration(typeof(TCommand), (dispatcher, provider) =>
+        services.AddSingleton(new SelectedHandlerService(typeof(ISyncCommandHandler<TCommand, TResult>)));
+        services.AddSingleton(new SyncCommandHandlerRegistration(typeof(TCommand), static (dispatcher, provider) =>
         {
-            HandlerServiceSelection.Validate<ISyncCommandHandler<TCommand, TResult>>(services);
+            HandlerServiceSelection.RequirePrepared<ISyncCommandHandler<TCommand, TResult>>(provider);
             dispatcher.Register(new ScopedSyncCommandHandler<TCommand, TResult, ISyncCommandHandler<TCommand, TResult>>(provider));
         }));
         return services;
@@ -63,11 +64,7 @@ public static class SharpQrsSynchronousExtensions
         SyncRegistrationValidation.Concrete(services, typeof(THandler));
         SyncRegistrationValidation.Mapping(services, typeof(TCommand), false);
         services.AddSharpQrsSynchronous();
-        if (!services.Any(d => d.ServiceType == typeof(THandler)))
-        {
-            services.AddScoped<THandler>();
-            services.AddSingleton(new RegisteredHandlerType(typeof(THandler)));
-        }
+        ConcreteHandlerRegistration.EnsureScoped<THandler>(services);
         services.AddSingleton(new SyncCommandHandlerRegistration(typeof(TCommand),
             (dispatcher, provider) => dispatcher.Register(new ScopedSyncCommandHandler<TCommand, TResult, THandler>(provider))));
         return services;
@@ -89,9 +86,10 @@ public static class SharpQrsSynchronousExtensions
         HandlerServiceSelection.Validate<ISyncQueryHandler<TQuery, TResult>>(services);
         SyncRegistrationValidation.Mapping(services, typeof(TQuery), true);
         services.AddSharpQrsSynchronous();
-        services.AddSingleton(new SyncQueryHandlerRegistration(typeof(TQuery), (dispatcher, provider) =>
+        services.AddSingleton(new SelectedHandlerService(typeof(ISyncQueryHandler<TQuery, TResult>)));
+        services.AddSingleton(new SyncQueryHandlerRegistration(typeof(TQuery), static (dispatcher, provider) =>
         {
-            HandlerServiceSelection.Validate<ISyncQueryHandler<TQuery, TResult>>(services);
+            HandlerServiceSelection.RequirePrepared<ISyncQueryHandler<TQuery, TResult>>(provider);
             dispatcher.Register(new ScopedSyncQueryHandler<TQuery, TResult, ISyncQueryHandler<TQuery, TResult>>(provider));
         }));
         return services;
@@ -114,11 +112,7 @@ public static class SharpQrsSynchronousExtensions
         SyncRegistrationValidation.Concrete(services, typeof(THandler));
         SyncRegistrationValidation.Mapping(services, typeof(TQuery), true);
         services.AddSharpQrsSynchronous();
-        if (!services.Any(d => d.ServiceType == typeof(THandler)))
-        {
-            services.AddScoped<THandler>();
-            services.AddSingleton(new RegisteredHandlerType(typeof(THandler)));
-        }
+        ConcreteHandlerRegistration.EnsureScoped<THandler>(services);
         services.AddSingleton(new SyncQueryHandlerRegistration(typeof(TQuery),
             (dispatcher, provider) => dispatcher.Register(new ScopedSyncQueryHandler<TQuery, TResult, THandler>(provider))));
         return services;

@@ -1,11 +1,15 @@
-using Monstertacle.SharpQrs.AspNetCore;
-
 namespace Monstertacle.SharpQrs.Examples.Web;
 
 public static class Program
 {
-    private static async Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
+        if (args.Contains("--worker", StringComparer.Ordinal))
+        {
+            var completed = await Worker.WorkerDemo.RunAsync();
+            Console.WriteLine($"Worker completed {completed.Count} scoped units with a decorated command and query.");
+            return;
+        }
         await using var app = CreateApplication(args);
         await app.RunAsync();
     }
@@ -17,12 +21,8 @@ public static class Program
         if (urls.Split(';').Any(url => !new Uri(url).IsLoopback))
             throw new InvalidOperationException("The demonstration must bind to loopback addresses.");
         builder.WebHost.UseUrls(urls);
-        builder.Host.UseDefaultServiceProvider(options => options.ValidateScopes = true);
-        builder.Services.AddScoped<RequestScope>();
-        builder.Services.AddScoped<ICommandHandler<EchoCommand, EchoResult>, EchoCommandHandler>();
-        builder.Services.AddScoped<IQueryHandler<EchoQuery, EchoResult>, EchoQueryHandler>();
-        builder.Services.AddSharpQrsCommand<EchoCommand, EchoResult>();
-        builder.Services.AddSharpQrsQuery<EchoQuery, EchoResult>();
+        builder.Host.UseServiceProviderFactory(ExampleComposition.CreateFactory());
+        ExampleComposition.ConfigureWeb(builder.Services);
         var app = builder.Build();
         app.MapPost("/demo/commands", (EchoCommand command, ICommandDispatcher dispatcher, CancellationToken token)
             => dispatcher.DispatchAsync(command, token));

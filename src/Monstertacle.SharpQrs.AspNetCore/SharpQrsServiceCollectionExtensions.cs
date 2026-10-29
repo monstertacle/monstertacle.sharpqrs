@@ -43,11 +43,7 @@ public static class SharpQrsServiceCollectionExtensions
         RegistrationValidation.Handler(services, typeof(THandler));
         RegistrationValidation.Mapping(services, typeof(TCommand), false);
         services.AddSharpQrs();
-        if (!services.Any(d => d.ServiceType == typeof(THandler)))
-        {
-            services.AddScoped<THandler>();
-            services.AddSingleton(new RegisteredHandlerType(typeof(THandler)));
-        }
+        ConcreteHandlerRegistration.EnsureScoped<THandler>(services);
         services.AddSingleton(new CommandHandlerRegistration(typeof(TCommand),
             (dispatcher, provider) => dispatcher.Register(new ScopedCommandHandler<TCommand, TResult, THandler>(provider))));
         return services;
@@ -70,11 +66,7 @@ public static class SharpQrsServiceCollectionExtensions
         RegistrationValidation.Handler(services, typeof(THandler));
         RegistrationValidation.Mapping(services, typeof(TQuery), true);
         services.AddSharpQrs();
-        if (!services.Any(d => d.ServiceType == typeof(THandler)))
-        {
-            services.AddScoped<THandler>();
-            services.AddSingleton(new RegisteredHandlerType(typeof(THandler)));
-        }
+        ConcreteHandlerRegistration.EnsureScoped<THandler>(services);
         services.AddSingleton(new QueryHandlerRegistration(typeof(TQuery),
             (dispatcher, provider) => dispatcher.Register(new ScopedQueryHandler<TQuery, TResult, THandler>(provider))));
         return services;

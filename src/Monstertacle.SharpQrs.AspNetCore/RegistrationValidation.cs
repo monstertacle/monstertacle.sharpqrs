@@ -19,11 +19,7 @@ internal static class RegistrationValidation
     internal static void Handler(IServiceCollection services, Type handler)
     {
         Infrastructure(services);
-        if (handler.IsAbstract || handler.ContainsGenericParameters)
-            throw new InvalidOperationException($"Handler {handler.FullName} must be concrete and closed.");
-        var owned = services.Select(Instance).OfType<RegisteredHandlerType>().Any(r => r.HandlerType == handler);
-        if (!owned && services.Any(d => d.ServiceType == handler))
-            throw new InvalidOperationException($"External handler registration conflicts with {handler.FullName}.");
+        ConcreteHandlerRegistration.Validate(services, handler);
     }
 
     internal static void Mapping(IServiceCollection services, Type request, bool query)

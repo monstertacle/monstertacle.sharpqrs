@@ -15,12 +15,10 @@ public sealed class MetadataValidationTests
         services.AddEcho(query);
         var metadataName = query ? "QueryHandlerRegistration" : "CommandHandlerRegistration";
         services.Add(Assert.Single(services, d => d.ServiceType.Name == metadataName));
-        using var provider = services.BuildValidated();
-        using var scope = provider.CreateScope();
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            if (query) scope.ServiceProvider.GetRequiredService<IQueryDispatcher>();
-            else scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
-        });
+        Assert.Throws<InvalidOperationException>(() => services.BuildValidated());
+        using var legacy = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+        using var scope = legacy.CreateScope();
+        var dispatcherType = query ? typeof(IQueryDispatcher) : typeof(ICommandDispatcher);
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetRequiredService(dispatcherType));
     }
 }

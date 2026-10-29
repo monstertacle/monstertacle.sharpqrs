@@ -140,3 +140,18 @@ covers standalone and scoped async dispatch and third-party interface implemente
 It checks exercised compatibility; it does not claim exhaustive equivalence for
 all possible external consumers. No public method was removed or given new required
 interface members. The additive API has not been published by this feature.
+
+
+## Checked composition regression coverage
+
+Interface mappings require the owner-approved checked boundary documented in
+[DI composition and migration](di-composition.md). The test composition helper
+prepares each final collection. Tests for late ambiguity and duplicate metadata
+assert failure at preparation, before provider creation or handler activation.
+Published concrete-only raw provider construction remains covered separately by
+compatibility tests and the original packaged consumer binary.
+
+The isolated integrated package consumer also uses all four interface selectors and
+preparation, proving that the packaged public setup API supports both execution
+modes. The reusable verifier runs the finite `--worker` example as well as HTTP
+smoke checks, and tests exercise its decorated scoped operations and original errors.
