@@ -47,3 +47,14 @@ not install the coverage executable or enforce a repository check.
 Tool documentation reviewed at revision
 `eb78a48866090be49eba7985a1224cda537b970b`:
 [upstream README](https://github.com/codemetr/Codemetr.CSharp.Cover/blob/eb78a48866090be49eba7985a1224cda537b970b/README.md).
+
+
+## Implementation follow-through
+
+The later autonomous instruction authorised the remaining phases and selected tool
+installation. The local manifest now pins published tool **0.1.1**, doctor reports
+ready and complete checks consume fresh collector/TRX evidence. The implementation
+uses no source exclusions: both examples were brought into instrumentation after
+an unmeasured-change finding. See implementation-evidence.md for executed results.
+A read-only reference clone is available at the normal Codemetr repository location;
+its source is not used to build or replace the published tool.

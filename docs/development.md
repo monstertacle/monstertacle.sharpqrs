@@ -104,3 +104,39 @@ The manual release workflow reuses the Windows/Linux verifier and publishes the
 Linux-produced packages only after all platform checks pass. Its artefact selector
 requires the exact source revision and version, a clean successful verification run
 and exactly the core/integration pair. See [manual releases](../.github/RELEASING.md).
+
+## Coverage tool and compatibility gates
+
+The existing tool manifest also pins `Codemetr.CSharp.Cover.Tool` **0.1.1** from
+nuget.org. The installed marketplace plugin `codemetr-csharp-cover` **0.1.0** is
+separate guidance, with `coverage` and `coverage-guard` skills. Plugin installation
+does not install or enforce the executable. Source provenance is recorded in
+[the feature review](../specs/002-interface-sync-cqrs/coverage-source-review.md).
+
+The complete verifier reuses its fresh Cobertura and TRX files for a mandatory
+`codemetr-csharp-cover check`, retains `cover.json` and rejects partial evidence,
+missing production sources, unreported members, mismatched revision, tool errors
+and failed or skipped tests. The original independent 90% line floor in **each**
+library remains mandatory. `codemetr-cover.json` sets aggregate and changed-line
+floors to 90% and the documented default CRAP maximum to 30. Branch, per-type and
+per-member measurements are reported; no separate numerical branch floor is imposed.
+No baseline accepts existing gaps and no handwritten library source is excluded.
+Non-packable examples are also instrumented and exercised from tests, including
+actual loopback HTTP requests. No handwritten library or example source is excluded;
+static metrics continue to cover libraries, tests and examples.
+
+Local verification defaults to `origin/main` as the comparison base; pass
+`-CoverageBase <revision>` to select an explicit base. Hosted verification fetches
+full history and uses the PR target SHA or the current commit's first parent for
+push, manual and release runs. An unresolved base fails instead of reducing scope.
+Reports retain the resolved merge base and checked head. A no-change diff does not
+waive the complete measurement or per-library checks.
+
+`check-compatibility.ps1` restores published `0.1.0-alpha.1` from nuget.org into an
+isolated temporary cache. It compiles and runs an old consumer, replaces only the
+library assemblies with the candidate and runs that binary without recompilation.
+It then recompiles the unchanged source against the candidate assemblies. This
+covers standalone and scoped async dispatch and third-party interface implementers.
+It checks exercised compatibility; it does not claim exhaustive equivalence for
+all possible external consumers. No public method was removed or given new required
+interface members. The additive API has not been published by this feature.

@@ -3,7 +3,7 @@
 Typed, in-process command and query dispatch for .NET 10, with a separate scoped
 registration integration. Both libraries are independent of SharpClaw.
 
-- `Monstertacle.SharpQrs`: dependency-free core with explicit handler instances.
+- `Monstertacle.SharpQrs`: dependency-free core with explicit handler contracts and synchronous or asynchronous dispatch.
 - `Monstertacle.SharpQrs.AspNetCore`: explicit DI registration and scope-aware lazy
   handler resolution; depends only on the core and DI abstractions.
 
@@ -17,7 +17,8 @@ pwsh -NoProfile -File scripts/verify.ps1
 ```
 
 Verification uses locked restore, warnings-as-errors Release builds, behavioural
-tests, at least 90% line coverage **in each library**, the strict full-source
+tests, at least 90% line coverage **in each library**, complete Codemetr coverage
+and diff checks, published-consumer compatibility, the strict full-source
 Codemetr guard, a dependency vulnerability audit, runnable examples and isolated
 NuGet package consumers. Reports are written to a fresh ignored `artifacts/verify-*`
 directory. Windows and Linux CI run the same script. Publishing uses the separate
@@ -50,8 +51,56 @@ once as scoped, even when selected for several distinct contracts. They activate
 only when needed; container scope disposal owns their resources. Use asynchronous
 scope disposal for async-only services. Do not separately register selected concrete
 handlers or dispatcher services: those configurations are rejected atomically.
-Direct handler-interface registrations are not discovered.
+Existing handler-interface services can be selected explicitly instead:
+
+```csharp
+services.AddScoped<ICommandHandler<MyCommand, MyResult>, MyCommandHandler>();
+services.AddSharpQrsCommand<MyCommand, MyResult>();
+```
+
+This selects exactly one unkeyed handler service without activating it. Decorators
+and existing service lifetimes are preserved. Missing or ambiguous services fail
+explicitly; selection is validated during setup and scoped dispatcher construction.
+Register services before selecting mappings and finish configuration before building
+the provider. Query handlers have the corresponding two-argument helper. There is
+no implicit discovery. Standalone setup can use `ICommandRegistration` and
+`IQueryRegistration`, leaving runtime consumers dependent on dispatch alone.
 See the [web example](examples/Web/README.md).
+
+## Synchronous usage
+
+```csharp
+var dispatcher = new SyncCommandDispatcher();
+ISyncCommandRegistration registrations = dispatcher;
+registrations.Register<MyCommand, MyResult>(new MySyncCommandHandler());
+ISyncCommandDispatcher commands = dispatcher;
+MyResult result = commands.Dispatch(new MyCommand(), cancellationToken);
+```
+
+Implement `ISyncCommandHandler<MyCommand, MyResult>.Handle` returning `MyResult`
+directly. Queries use `ISyncQueryHandler`, `ISyncQueryRegistration`,
+`ISyncQueryDispatcher` and `SyncQueryDispatcher`. Synchronous work can cooperate
+with cancellation; tokens are forwarded unchanged.
+
+Scoped composition offers either concrete selection or an existing service contract:
+
+```csharp
+services.AddSharpQrsSyncCommand<MyCommand, MyResult, MySyncCommandHandler>();
+// Alternatively, register a service and select its contract:
+services.AddScoped<ISyncQueryHandler<MyQuery, MyResult>, MySyncQueryHandler>();
+services.AddSharpQrsSyncQuery<MyQuery, MyResult>();
+```
+
+These helpers install synchronous infrastructure automatically. For empty dispatchers,
+call `AddSharpQrsSynchronous()`. Resolve dispatchers inside a scope. Sync and async
+mappings are independent, even for the same request type. Wrong-mode dispatch fails;
+there is no task blocking, implicit adaptation or background scheduling. Await
+`DispatchAsync` for asynchronous handlers and call `Dispatch` for synchronous ones.
+
+Concrete handler types belong at the composition boundary so the container can
+construct them. Domain consumers need only dispatcher interfaces. Additional
+interfaces here separate setup, execution mode and command/query responsibilities;
+adding an interface to every implementation would not itself establish SOLID design.
 
 ## Contracts
 

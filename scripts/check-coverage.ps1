@@ -13,7 +13,8 @@ function Test-CoverageReport {
     }
     $expected = @('Monstertacle.SharpQrs', 'Monstertacle.SharpQrs.AspNetCore')
     $packages = @($report.coverage.packages.package)
-    if ($packages.Count -ne 2) { throw 'Coverage must contain exactly both production assemblies.' }
+    $allowed = $expected + @('Standalone', 'Web')
+    if (@($packages | Where-Object { $_.name -notin $allowed }).Count -gt 0) { throw 'Unexpected coverage assembly.' }
     foreach ($name in $expected) {
         $package = @($packages | Where-Object name -eq $name)
         if ($package.Count -ne 1) { throw "Missing or duplicate coverage for $name." }

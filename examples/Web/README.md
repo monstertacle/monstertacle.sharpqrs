@@ -10,9 +10,11 @@ Invoke-RestMethod -Uri http://127.0.0.1:5080/demo/queries/example
 
 Both return `value` and `scopeId`. Separate HTTP requests have distinct scoped
 identities. Stop the host with Ctrl+C. This demonstrates registration, not generated
-library endpoints or a production service. Helpers select exact handlers, activate
-them lazily and register each concrete handler only once as scoped. External
-registrations for selected concrete handlers or dispatchers are conflicts.
+library endpoints or a production service. This example registers handlers as scoped interface services, then selects exact
+CQRS mappings through those contracts. Helpers activate services lazily in the
+request scope. Missing or ambiguous unkeyed handler services fail explicitly.
+The alternative three-argument helpers own concrete scoped registration; combining
+those helpers with external concrete registrations is a conflict.
 The container owns scoped resources; use asynchronous scope disposal for async-only
 resources. Applications provide handler thread safety, even within one scope.
 

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Draft; awaiting approval before Clarify
+**Status**: Clarified; autonomous delivery authorised by the user
 
 **Constitution reviewed**: 2.0.0; no amendment proposed
 
@@ -225,3 +225,15 @@ the same complete verification on Linux and Windows, including negative fixtures
   No new numerical threshold, baseline or package publication is authorised here.
 - No blocking requirements question was identified during Specify. Clarify must
   still assess these assumptions after the user approves the transition.
+
+## Clarifications
+
+### Session 2026-10-29
+
+- The user explicitly authorised autonomous Spec Kit implementation and progression
+  through the remaining phases. Publication remains a separate action.
+- No critical requirement ambiguity requires a user question. Scope, failure modes,
+  ownership and compatibility are clear. Contract naming, validation timing and
+  coverage policy are design decisions resolved in Plan.
+- All clarification categories are clear or inapplicable to an in-process library;
+  there is no persistence, external business service or interactive product UI.
