@@ -1,4 +1,6 @@
+param([string]$PackageVersion)
 $ErrorActionPreference = 'Stop'
+. "$PSScriptRoot/package-version.ps1"
 function Invoke-VerificationStages {
     param([scriptblock]$Runner)
     foreach ($stage in @('restore', 'build', 'tests', 'coverage', 'metrics', 'audit', 'standalone', 'web', 'packages')) {
@@ -35,8 +37,9 @@ function Invoke-RepositoryVerification {
     $root = Split-Path $PSScriptRoot -Parent
     Push-Location $root
     try {
+        $version = Resolve-PackageVersion $PackageVersion $root
         Assert-VerificationScripts $root
-        foreach ($name in @('CheckCoverage', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'Verify')) {
+        foreach ($name in @('CheckCoverage', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'PackageVersion', 'ReleasePackages', 'Verify')) {
             Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', "tests/Scripts/$name.Tests.ps1")
         }
         $started = [datetime]::UtcNow
@@ -45,7 +48,7 @@ function Invoke-RepositoryVerification {
         $revision = & git rev-parse HEAD
         if ($LASTEXITCODE -ne 0) { throw 'Unable to identify source revision.' }
         $manifest = [ordered]@{ revision = $revision; startedUtc = $started.ToString('o'); sdk = (& dotnet --version)
-            powershell = $PSVersionTable.PSVersion.ToString(); status = 'running'; workingTree = (& git status --porcelain) }
+            powershell = $PSVersionTable.PSVersion.ToString(); packageVersion = $version; status = 'running'; workingTree = (& git status --porcelain) }
         $manifest | ConvertTo-Json -Depth 5 | Set-Content "$run/run.json"
         Invoke-VerificationStages {
             param($stage)
@@ -53,13 +56,13 @@ function Invoke-RepositoryVerification {
             switch ($stage) {
                 'restore' {
                     Invoke-CheckedCommand 'dotnet' @('tool', 'restore')
-                    Invoke-CheckedCommand 'dotnet' @('restore', 'Monstertacle.SharpQrs.slnx', '--locked-mode')
+                    Invoke-CheckedCommand 'dotnet' @('restore', 'Monstertacle.SharpQrs.slnx', '--locked-mode', "-p:Version=$version")
                 }
-                'build' { Invoke-CheckedCommand 'dotnet' @('build', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-restore') }
+                'build' { Invoke-CheckedCommand 'dotnet' @('build', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-restore', "-p:Version=$version") }
                 'tests' {
                     Invoke-CheckedCommand 'dotnet' @('test', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-build', '--no-restore',
                         '--results-directory', $run, '--logger', 'trx;LogFileName=tests.trx',
-                        '--collect', 'XPlat Code Coverage', '--settings', 'coverage.runsettings')
+                        '--collect', 'XPlat Code Coverage', '--settings', 'coverage.runsettings', "-p:Version=$version")
                     Publish-CoverageReport $run | Out-Null
                     [xml]$trx = Get-Content "$run/tests.trx" -Raw
                     if ([int]$trx.TestRun.ResultSummary.Counters.executed -le 0 -or [int]$trx.TestRun.ResultSummary.Counters.failed -ne 0) { throw 'No passing executed tests.' }
@@ -69,7 +72,7 @@ function Invoke-RepositoryVerification {
                 'audit' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-audit.ps1', '-OutputDirectory', $run) }
                 'standalone' { Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Standalone', '-c', 'Release', '--no-build', '--no-restore') }
                 'web' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-web.ps1', '-OutputDirectory', $run) }
-                'packages' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-packages.ps1', '-OutputDirectory', $run) }
+                'packages' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-packages.ps1', '-OutputDirectory', $run, '-PackageVersion', $version) }
             }
             return 0
         }

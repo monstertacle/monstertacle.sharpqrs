@@ -91,3 +91,16 @@ sources cleared and exactly the local package feed plus nuget.org. The explicit
 nuget.org audit source is retained. This avoids Windows interpreting repeated CLI
 `--source` values as filesystem paths; XML construction preserves feed paths with
 spaces and metacharacters. The configuration has dependency-free regression checks.
+
+## Release versions
+
+The normal verifier resolves the matching explicit versions from both library
+projects. A release supplies `-PackageVersion`, which consistently overrides restore,
+build, pack, metadata checks and isolated consumer references. Invalid version input
+or disagreeing default project versions fails before building. Release artefacts
+record the package version as well as source SHA and working-tree state.
+
+The manual release workflow reuses the Windows/Linux verifier and publishes the
+Linux-produced packages only after all platform checks pass. Its artefact selector
+requires the exact source revision and version, a clean successful verification run
+and exactly the core/integration pair. See [manual releases](../.github/RELEASING.md).

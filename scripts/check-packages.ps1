@@ -1,5 +1,6 @@
-param([string]$OutputDirectory)
+param([string]$OutputDirectory, [string]$PackageVersion)
 $ErrorActionPreference = 'Stop'
+. "$PSScriptRoot/package-version.ps1"
 function Invoke-PackageCommand {
     param([string[]]$Arguments)
     & dotnet @Arguments
@@ -14,11 +15,12 @@ function Write-ConsumerNuGetConfig {
 if ($MyInvocation.InvocationName -eq '.') { return }
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) { throw 'Package output directory is required.' }
 $root = (Get-Location).Path
+$PackageVersion = Resolve-PackageVersion $PackageVersion $root
 $feed = Join-Path ([IO.Path]::GetFullPath($OutputDirectory)) 'packages'
 New-Item $feed -ItemType Directory -Force | Out-Null
 foreach ($name in @('Monstertacle.SharpQrs', 'Monstertacle.SharpQrs.AspNetCore')) {
-    Invoke-PackageCommand @('pack', "src/$name/$name.csproj", '-c', 'Release', '--no-build', '--no-restore', '--output', $feed)
-    $package = Join-Path $feed "$name.0.1.0-alpha.1.nupkg"
+    Invoke-PackageCommand @('pack', "src/$name/$name.csproj", '-c', 'Release', '--no-build', '--no-restore', "-p:Version=$PackageVersion", '--output', $feed)
+    $package = Join-Path $feed "$name.$PackageVersion.nupkg"
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $archive = [IO.Compression.ZipFile]::OpenRead($package)
     try {
@@ -26,7 +28,7 @@ foreach ($name in @('Monstertacle.SharpQrs', 'Monstertacle.SharpQrs.AspNetCore')
         if ($nuspec.Count -ne 1) { throw 'Missing package metadata.' }
         $reader = [IO.StreamReader]::new($nuspec[0].Open())
         try { [xml]$metadata = $reader.ReadToEnd() } finally { $reader.Dispose() }
-        if ($metadata.package.metadata.license.'#text' -ne 'MIT' -or $metadata.package.metadata.version -ne '0.1.0-alpha.1') { throw 'Incorrect package licence or version.' }
+        if ($metadata.package.metadata.license.'#text' -ne 'MIT' -or $metadata.package.metadata.version -ne $PackageVersion) { throw 'Incorrect package licence or version.' }
         if ($name -eq 'Monstertacle.SharpQrs' -and $metadata.package.metadata.dependencies.group.dependency) { throw 'The core package must be dependency-free.' }
         if (-not ($archive.Entries | Where-Object FullName -eq 'LICENSE')) { throw 'The MIT notice is missing from the package.' }
     } finally { $archive.Dispose() }
@@ -43,9 +45,9 @@ try {
         $directory = Join-Path $scratch $mode
         New-Item $directory -ItemType Directory | Out-Null
         Copy-Item examples/Standalone/*.cs $directory
-        $references = '<PackageReference Include="Monstertacle.SharpQrs" Version="0.1.0-alpha.1" />'
+        $references = "<PackageReference Include=`"Monstertacle.SharpQrs`" Version=`"$PackageVersion`" />"
         if ($mode -eq 'integrated') {
-            $references += '<PackageReference Include="Monstertacle.SharpQrs.AspNetCore" Version="0.1.0-alpha.1" /><PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />'
+            $references += "<PackageReference Include=`"Monstertacle.SharpQrs.AspNetCore`" Version=`"$PackageVersion`" /><PackageReference Include=`"Microsoft.Extensions.DependencyInjection`" Version=`"10.0.14`" />"
             $program = @'
 using Microsoft.Extensions.DependencyInjection;
 using Monstertacle.SharpQrs;

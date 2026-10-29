@@ -1,0 +1,82 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'NuGet version (for example 0.1.0-alpha.1 or 0.2.0)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Verify and inspect packages without publishing'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nuget-release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/verify.yml
+    with:
+      version: ${{ inputs.version }}
+  publish:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PACKAGE_VERSION: ${{ inputs.version }}
+      NUGET_USER: ${{ secrets.NUGET_USER }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.403'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verification-ubuntu-24.04
+          path: artifacts/release-verified
+      - name: Inspect the verified packages and NuGet identity
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_USER)) { throw 'Configure the personal NuGet profile name in the nuget environment secret NUGET_USER.' }
+          . ./scripts/release-packages.ps1
+          $packages = @(Get-VerifiedReleasePackages artifacts/release-verified $env:PACKAGE_VERSION $env:GITHUB_SHA)
+          $packages | ForEach-Object { Write-Host "$($_.Name): $((Get-FileHash $_.FullName -Algorithm SHA256).Hash)" }
+      - name: NuGet login (OIDC)
+        if: ${{ !inputs.dry_run }}
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: Publish both verified packages
+        if: ${{ !inputs.dry_run }}
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) { throw 'NuGet login did not return a publishing credential.' }
+          . ./scripts/release-packages.ps1
+          foreach ($package in @(Get-VerifiedReleasePackages artifacts/release-verified $env:PACKAGE_VERSION $env:GITHUB_SHA)) {
+            dotnet nuget push $package.FullName --source https://api.nuget.org/v3/index.json
+            if ($LASTEXITCODE -ne 0) { throw "Publishing $($package.Name) failed." }
+          }
+      - name: Report dry-run completion
+        if: ${{ inputs.dry_run }}
+        run: Write-Host "Dry run passed for $env:PACKAGE_VERSION. Both verified packages are ready; publishing steps were skipped."
