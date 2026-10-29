@@ -50,7 +50,10 @@ or request scope. Enable DI scope validation. Concrete handlers are registered
 once as scoped, even when selected for several distinct contracts. They activate
 only when needed; container scope disposal owns their resources. Use asynchronous
 scope disposal for async-only services. Do not separately register selected concrete
-handlers or dispatcher services: those configurations are rejected atomically.
+handlers or dispatcher services. Helpers reject pre-existing conflicts before
+mutating the collection; adding or replacing concrete registrations afterwards is
+unsupported. Ordinary container construction does not prevent later descriptors
+from overriding earlier registrations.
 Existing handler-interface services can be selected explicitly instead:
 
 ```csharp

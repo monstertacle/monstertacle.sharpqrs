@@ -4,8 +4,14 @@ namespace Monstertacle.SharpQrs.Examples.Web;
 
 public static class Program
 {
-    private static async Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
+        if (args.Contains("--worker", StringComparer.Ordinal))
+        {
+            var completed = await Worker.WorkerDemo.RunAsync();
+            Console.WriteLine($"Worker completed {completed.Count} scoped units with a decorated command and query.");
+            return;
+        }
         await using var app = CreateApplication(args);
         await app.RunAsync();
     }

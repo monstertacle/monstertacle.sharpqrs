@@ -1,6 +1,6 @@
 # DI composition corrections and usage guidance
 
-**Status**: ready for specification and design; implementation not started
+**Status**: in progress; independent fixes checked, composition contract decision pending
 **Owner**: SharpQrs repository maintainer, Alexander Bleissem
 **Origin**: [opposing architecture review](../reviews/2026-10-29-cqrs-di-review.md)
 **Reviewed baseline**: `9216f275256afcd70c6dec44cf9651d7cf12f837`
@@ -84,3 +84,13 @@ not approval to impose a new public provider factory or break existing consumers
   audit, sample and package-consumer checks pass locally and on Windows/Linux.
 - Every finding above receives a tested fix or a documented accountable scope decision.
   No finding is dismissed solely because the old line coverage was 100%.
+
+
+## Active feature
+
+[Feature 003](../../specs/003-di-composition/spec.md) carries the autonomous
+implementation. Its independent mode-isolation correction and worker/decorator
+example passed local verification. The required checked-construction proposal for
+interface mappings is awaiting an explicit owner decision under the Constitution's
+breaking-contract rule. DI-002 remains open; the rejected mutable-collection fallback
+has not been presented as a fix. See the feature's tasks and evidence for current scope.
