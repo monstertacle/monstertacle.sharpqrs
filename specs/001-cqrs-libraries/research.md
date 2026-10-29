@@ -165,3 +165,27 @@ All design unknowns are resolved into proposals and documented constraints.
 Approval of the plan and metrics profile, permission for later installations, actual
 runtime checks and security verification remain explicit gates, not unresolved design
 questions or claims of completed implementation.
+
+## Implementation amendment: VSTest coverage collection
+
+Recorded: 2026-10-29T05:57:20Z
+
+The initial `coverlet.msbuild` 10.1.0 choice above is historical. Hosted run
+[40782893460](https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40782893460)
+passed all 87 tests on Windows but reported missing hit files and zero coverage;
+the Linux job passed. Coverlet's [documented shutdown issue](https://github.com/coverlet-coverage/coverlet/blob/10a8051216eeaebb661624eef348ee768693fed9/Documentation/KnownIssues.md)
+identifies this MSBuild-driver failure mode and recommends collector integration.
+
+The user's subsequent CI-repair request resumes the previously proposed correction.
+Replace the private test dependency with `coverlet.collector` **10.1.0**, preserving
+VSTest, the existing SDK/Test SDK/xUnit versions and every production requirement.
+Published [NuGet metadata](https://api.nuget.org/v3-flatcontainer/coverlet.collector/10.1.0/coverlet.collector.nuspec)
+declares MIT and source commit `10a8051216eeaebb661624eef348ee768693fed9`.
+Its [VSTest guide](https://github.com/coverlet-coverage/coverlet/blob/10a8051216eeaebb661624eef348ee768693fed9/Documentation/VSTestIntegration.md)
+supports the existing VSTest execution model; this is not an MTP migration.
+
+The collector's completion handshake prevents the early-shutdown hit-loss mechanism.
+Runsettings select both whole production assemblies. A fresh report must pass the
+same independent 90% line gates, with branch reporting unchanged. The complete
+solution vulnerability audit is repeated against the regenerated test lock file.
+No production package, public contract, metric limit or licence changes.

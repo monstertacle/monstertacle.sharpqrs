@@ -1,10 +1,11 @@
 # Implementation Plan: General-purpose CQRS Libraries
 
 **Feature**: `001-cqrs-libraries` | **Date**: 2026-10-28 | **Spec**: [spec.md](spec.md)
-**Branch**: Spec Kit reports `001-cqrs-libraries` as the feature identifier; no Git
-repository or actual branch exists in this workspace.
-**Status**: Design and tasks prepared; analysis remediation under review. Explicit
-metrics-profile and installation approval remain prerequisites to implementation.
+**Branch**: `feature/001-cqrs-libraries`; Spec Kit feature identifier `001-cqrs-libraries`.
+**Status**: Implementation, metrics profile and local tool installation authorised.
+Implementation, local verification, clean committed fresh checkout and hosted
+Windows/Linux verification passed. Evidence and resolved CI findings are recorded
+in [implementation-evidence.md](implementation-evidence.md).
 
 ## Summary
 
@@ -16,7 +17,7 @@ registers concrete handlers once and installs non-owning scope-aware adapters in
 core dispatchers. This reuses core validation without leaking container dependencies
 into the core or registering disposable handler aliases multiple times.
 
-This command produces design documentation only. No application code, tests, tool
+The planning command produced design documentation only. No application code, tests, tool
 manifests, CI workflows or tasks are created. No installation, publication, Git
 initialisation or commit is performed.
 
@@ -33,7 +34,7 @@ consumers use their normal shared framework; no HTTP dependency is imposed on th
 
 **Testing**: One `Monstertacle.SharpQrs.Tests` project referencing both production
 libraries: xUnit 2.9.3, Microsoft.NET.Test.Sdk 18.11.0,
-xunit.runner.visualstudio 4.0.1, coverlet.msbuild 10.1.0,
+xunit.runner.visualstudio 4.0.1, coverlet.collector 10.1.0,
 Microsoft.Extensions.DependencyInjection 10.0.14 and Microsoft.AspNetCore.TestHost
 10.0.14. Use VSTest, not Microsoft.Testing.Platform. Test dependencies are private
 and the project is not packable. See [research.md](research.md).
@@ -176,9 +177,10 @@ available during early property evaluation.
   source is copied: no root licence was found there, so source reuse rights cannot
   be assumed from this project's MIT licence.
 
-## Proposed Metrics Profile — Approval Required
+## Approved Metrics Profile
 
-Use published `Codemetr.CSharp.Tool` 0.1.0, installed locally only after approval.
+The user explicitly approved this profile and repository-local installation during
+implementation. Use published `Codemetr.CSharp.Tool` 0.1.0.
 Enable `aggregatePartialTypes`; retain all default banned type-name suffixes.
 No baselines, hand-written-code exclusions or relaxed per-folder overrides.
 
@@ -232,7 +234,7 @@ loosening limits just to pass. Do not game metrics by fragmenting coherent code.
 - Commit central versions and per-project `packages.lock.json`; restore locked in
   verification. Use nuget.org as the explicit package source; no sibling-repository
   feeds or tool builds. CI provisions the exact SDK and PowerShell runtime.
-- VSTest runs the one test project with Coverlet MSBuild integration. Filter coverage
+- VSTest runs the one test project with Coverlet collector integration. Filter coverage
   to the two production assemblies, never to selected production types or source files.
   Require each expected assembly to be present with measured executable lines and
   at least 90% line coverage; a total average is insufficient. Report branch counts

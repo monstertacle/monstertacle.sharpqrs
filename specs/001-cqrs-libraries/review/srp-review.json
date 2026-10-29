@@ -1,0 +1,97 @@
+{
+  "requestedModel": "jev-latest",
+  "sourcePaths": [
+    "src/Monstertacle.SharpQrs/DispatchRegistry.cs",
+    "src/Monstertacle.SharpQrs/CommandDispatcher.cs",
+    "src/Monstertacle.SharpQrs.AspNetCore/RegistrationValidation.cs",
+    "src/Monstertacle.SharpQrs.AspNetCore/SharpQrsServiceCollectionExtensions.cs"
+  ],
+  "stateSha256": "bb3a75de8fd29c12bc18ec335f2015b90d9ada092dcbd7bf3e40f71cab2a10a1",
+  "questions": {
+    "DispatchRegistry": {
+      "type": "choice",
+      "instructions": "Assess the single responsibility of DispatchRegistry using its supplied source and collaborator context. Choose cohesive if its methods serve one bounded responsibility with a common reason for change; mixed if independent unrelated responsibilities are combined; insufficient_context if the source cannot support a judgement. Do not equate method count or registration-versus-execution lifecycle phases with unrelated responsibility.",
+      "criteria": {
+        "cohesive": "The type serves one bounded responsibility.",
+        "mixed": "The type combines independent unrelated responsibilities.",
+        "insufficient_context": "The provided source is insufficient to judge."
+      }
+    },
+    "CommandDispatcher": {
+      "type": "choice",
+      "instructions": "Assess the single responsibility of CommandDispatcher using its supplied source and collaborator context. Choose cohesive if its methods serve one bounded responsibility with a common reason for change; mixed if independent unrelated responsibilities are combined; insufficient_context if the source cannot support a judgement. Do not equate method count or registration-versus-execution lifecycle phases with unrelated responsibility.",
+      "criteria": {
+        "cohesive": "The type serves one bounded responsibility.",
+        "mixed": "The type combines independent unrelated responsibilities.",
+        "insufficient_context": "The provided source is insufficient to judge."
+      }
+    },
+    "RegistrationValidation": {
+      "type": "choice",
+      "instructions": "Assess the single responsibility of RegistrationValidation using its supplied source and collaborator context. Choose cohesive if its methods serve one bounded responsibility with a common reason for change; mixed if independent unrelated responsibilities are combined; insufficient_context if the source cannot support a judgement. Do not equate method count or registration-versus-execution lifecycle phases with unrelated responsibility.",
+      "criteria": {
+        "cohesive": "The type serves one bounded responsibility.",
+        "mixed": "The type combines independent unrelated responsibilities.",
+        "insufficient_context": "The provided source is insufficient to judge."
+      }
+    },
+    "SharpQrsServiceCollectionExtensions": {
+      "type": "choice",
+      "instructions": "Assess the single responsibility of SharpQrsServiceCollectionExtensions using its supplied source and collaborator context. Choose cohesive if its methods serve one bounded responsibility with a common reason for change; mixed if independent unrelated responsibilities are combined; insufficient_context if the source cannot support a judgement. Do not equate method count or registration-versus-execution lifecycle phases with unrelated responsibility.",
+      "criteria": {
+        "cohesive": "The type serves one bounded responsibility.",
+        "mixed": "The type combines independent unrelated responsibilities.",
+        "insufficient_context": "The provided source is insufficient to judge."
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.14.0",
+    "answers": {
+      "DispatchRegistry": {
+        "type": "choice",
+        "choice": "cohesive",
+        "confidence": 1.0,
+        "probabilities": {
+          "cohesive": 1.0,
+          "mixed": 0.0,
+          "insufficient_context": 0.0
+        }
+      },
+      "CommandDispatcher": {
+        "type": "choice",
+        "choice": "cohesive",
+        "confidence": 0.98,
+        "probabilities": {
+          "cohesive": 0.99,
+          "mixed": 0.01,
+          "insufficient_context": 0.0
+        }
+      },
+      "RegistrationValidation": {
+        "type": "choice",
+        "choice": "cohesive",
+        "confidence": 1.0,
+        "probabilities": {
+          "cohesive": 1.0,
+          "mixed": 0.0,
+          "insufficient_context": 0.0
+        }
+      },
+      "SharpQrsServiceCollectionExtensions": {
+        "type": "choice",
+        "choice": "cohesive",
+        "confidence": 1.0,
+        "probabilities": {
+          "cohesive": 1.0,
+          "mixed": 0.0,
+          "insufficient_context": 0.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 3522,
+      "output_tokens": 198
+    }
+  }
+}

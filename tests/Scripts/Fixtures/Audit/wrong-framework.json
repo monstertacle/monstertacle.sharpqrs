@@ -1,0 +1,1 @@
+{"version": 1, "sources": ["https://api.nuget.org/v3/index.json"], "projects": [{"path": "example.csproj", "frameworks": [{"framework": "net9.0"}]}]}

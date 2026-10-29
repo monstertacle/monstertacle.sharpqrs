@@ -1,146 +1,81 @@
-# Quickstart Validation Guide
+# Quickstart validation guide
 
-**Feature**: `001-cqrs-libraries`
+Feature: `001-cqrs-libraries`. Use a fresh checkout with .NET SDK **10.0.403**,
+PowerShell **7**, Git and network access to nuget.org. No SharpClaw checkout,
+external source tree or globally installed metrics tool is needed.
 
-This is a prospective guide for the implementation phase. The solution, examples,
-scripts and manifests named below do not exist yet. No command below has been
-executed against an implementation; planning does not authorise their installation
-or create an application. Run them only after those artefacts are implemented.
+## Complete verification
 
-## Prerequisites
-
-- .NET SDK 10.0.403 and a compatible .NET 10 runtime; ASP.NET Core 10 runtime for
-  the web example. The future `global.json` requires this exact SDK.
-- PowerShell 7 on Windows or Linux.
-- Access to nuget.org for locked package restore and the published tool restore.
-- User approval for the plan, metric profile and required repository-local tooling.
-
-The planned tool manifest pins `Codemetr.CSharp.Tool` 0.1.0. Do not install a global
-tool, fetch a sibling repository build or silently substitute a newer version.
-
-## Restore and Build
-
-From the repository root, after implementation and installation approval:
+From the repository root:
 
 ```powershell
 dotnet --version
 dotnet tool restore
-dotnet restore Monstertacle.SharpQrs.slnx --locked-mode
-dotnet build Monstertacle.SharpQrs.slnx --configuration Release --no-restore
-```
-
-Expected: exact SDK selected, all projects restored from committed lock files and
-a warning-free Release build. Initial lock-file generation belongs to implementation;
-do not use locked restore before those files exist.
-
-## Full Verification
-
-```powershell
 pwsh -NoProfile -File scripts/verify.ps1
 ```
 
-The planned entry point performs the same checks locally and in Windows/Linux CI:
-locked restore, Release build, VSTest execution, fresh coverage reports, coverage
-validation, full metrics, dependency audit, executable example smoke checks and
-isolated package-consumer checks. It invokes both `scripts/check-audit.ps1` and
-`scripts/check-packages.ps1`; CI must not omit either check.
-It fails on any non-zero mandatory subprocess result; reports identify source
-revision, tool versions and scope. Manual review items are reported separately,
-never presented as passing merely because the script exits zero.
+Expected: SDK 10.0.403, restored local Codemetr 0.1.0 and all automated gates pass.
+The entry point performs locked restore, warning-free Release build, actual VSTest
+execution, fresh per-library coverage, full-source metrics, dependency audit,
+standalone/web smoke checks and isolated NuGet package consumers. It also exercises
+the checker harnesses. Neither audit nor packaging is skipped.
+On the shared development machine, wrap the entry point with
+`bash ~/dev/scripts/run-capped.sh -- pwsh -NoProfile -File scripts/verify.ps1`.
 
-The audit gate parses versioned dependency and vulnerability JSON plus diagnostics.
-Any reported vulnerability, missing/incomplete evidence or failure to obtain audit
-data fails verification, even when the listing command itself returns zero. See
-[the audit verdict](plan.md#dependency-audit-verdict) for the full policy.
+Reports identify source revision, dirty-file status, tool versions and run times in
+a unique ignored `artifacts/verify-*` directory. Both production modules must have
+at least 90% line coverage; branch totals require review without an extra numerical
+gate. Missing, malformed, stale or incomplete evidence fails verification.
+Codemetr's synthetic compilation does not resolve all external symbols; inspect
+advisory metrics and the separate real build rather than treating exit zero as
+proof of SOLID or complete coupling analysis.
 
-### Inspect Individual Checks
+The dependency audit checks all solution projects/frameworks against committed
+lock files and nuget.org's vulnerability source. Every reported vulnerability
+fails. A clean result means no known vulnerabilities were reported for this graph;
+it is not a complete SDK/tool-binary security assessment. See the
+[development guide](../../docs/development.md) for classification and limitations.
 
-```powershell
-dotnet test tests/Monstertacle.SharpQrs.Tests/Monstertacle.SharpQrs.Tests.csproj --configuration Release --no-build --no-restore
-dotnet tool run codemetr-csharp check src tests examples --include-metrics --format json
-```
-
-These are the proposed VSTest and full-scope guard forms, not evidence of success.
-The coverage wrapper supplies Coverlet properties and a fresh report path; use the
-full entry point for acceptance rather than a test run without coverage.
-`analyze` alone is not a guard and changed-file checks cannot replace a full check.
-
-## Acceptance Scenarios
-
-### 1. Standalone Consumer
+## Standalone demonstration
 
 ```powershell
-dotnet run --project examples/Standalone --configuration Release --no-build
+dotnet run --project examples/Standalone --configuration Release --no-build --no-restore
 ```
 
-Expected: one explicit command handler and query handler return their expected
-non-null results; the example exits successfully without the integration library
-or a web host. Ownership remains with the caller. Covers SC-001 and FR-014.
+Expected: a command and query return the correct values, each invoking its handler
+once. The example references only the BCL-only core; caller ownership is retained.
+The full verification already executes it and an equivalent package-only consumer
+outside the source tree. The standalone runtime requires no ASP.NET Core runtime.
 
-### 2. Web Consumer
+## Web demonstration
 
 ```powershell
-dotnet run --project examples/Web --configuration Release --no-build -- --urls http://127.0.0.1:5080
+dotnet run --project examples/Web --configuration Release --no-build --no-restore -- --urls http://127.0.0.1:5080
 ```
 
-In a separate terminal, invoke the planned demonstration endpoints:
+In another terminal:
 
 ```powershell
 Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5080/demo/commands -ContentType application/json -Body '{"value":"example"}'
-Invoke-RestMethod -Method Get -Uri http://127.0.0.1:5080/demo/queries/example
+Invoke-RestMethod -Uri http://127.0.0.1:5080/demo/queries/example
 ```
 
-Expected: documented non-null demonstration results and distinct request-scope
-identities between requests. Automated TestHost checks prove reuse within a request
-and exactly-once disposal after completion. Bind the example to loopback only;
-it is not a production or public control service. Stop it after validation.
+Expected: `value` is `example`; each request returns a distinct `scopeId`.
+Stop the host with Ctrl+C. It accepts loopback binding only. These are hand-written
+example routes, not a production HTTP contract or library-generated endpoints.
+The verification entry point starts its own host on an ephemeral loopback port,
+executes both calls, checks results/scope identities and stops its owned process.
+Actual TestHost tests separately prove same-request reuse and exactly-once disposal.
 
-These are example endpoints, not generated library endpoints or a new production
-HTTP contract. Handler internals belong to implementation, not this guide.
+## Contracts and acceptance
 
-### 3. Invalid Calls and Isolation
+Tests cover both categories and usage modes: exact request/result identity, null
+requests/handlers/tasks/results, missing and duplicate registrations, atomic conflict
+rejection, original exception/token propagation, cancellation, concurrent routing,
+provider isolation and caller/container ownership. Non-null absence values are
+application-defined; nullable members inside a non-null result remain valid.
 
-The test suite must demonstrate missing/duplicate handlers, exact type and result
-matching, null inputs/tasks/results, original exception and token propagation,
-cancelled operations and concurrent routing. It must prove independent registrations
-between dispatcher instances and providers. See the two [contracts](contracts/core-api.md)
-and [data model](data-model.md) for precise expected behaviour.
-
-### 4. Coverage and Metrics
-
-Expected fresh evidence: both production assemblies present with executable line
-counts and at least 90% line coverage each; branch results reported for review.
-The coverage checker must reject a missing assembly or report rather than accept
-an average. Metrics cover all hand-written C# in source, tests and examples, including
-partial-type aggregation. Review cognitive complexity, cohesion, cycles and analysis
-limitations alongside the automated verdict.
-
-### 5. Package Independence
-
-During implementation verification, pack both libraries locally:
-
-```powershell
-dotnet pack src/Monstertacle.SharpQrs/Monstertacle.SharpQrs.csproj --configuration Release --no-build --output artifacts/packages
-dotnet pack src/Monstertacle.SharpQrs.AspNetCore/Monstertacle.SharpQrs.AspNetCore.csproj --configuration Release --no-build --output artifacts/packages
-```
-
-The full verification entry point already performs this check through
-`scripts/check-packages.ps1`; the pack commands above are for individual inspection.
-Create temporary consumers outside the source tree using that local feed plus
-nuget.org. Run both usage modes with package references only and no SharpClaw access.
-Inspect MIT package metadata and retained notices. Do not push packages to any feed.
-
-## Evidence and Limitations
-
-Successful scripts prove only the checks they execute. Record explicit review of
-SOLID, British English, public API contracts, third-party notices and advisory metrics.
-An unavailable audit feed, missing tool, failed restore or incomplete measurement
-must be reported; no result has passed yet merely because this guide exists.
-
-A clean source snapshot provides interim portability evidence, not completion of
-SC-004. Final acceptance requires this guide to pass from a fresh checkout of an
-authorised Git commit. Git initialisation and committing require separate permission;
-leave the criterion outstanding until that permission and verification exist.
-
-Proceed to implementation only after the separate Tasks and Analyze phases and
-their required approvals.
+The packages use the prerelease version `0.1.0-alpha.1`, include MIT notices and
+are consumed through a temporary local feed during verification. Nothing is published.
+For actual outcomes, hosted platform results, TDD traceability, advisory review and
+the fresh-checkout source revision, see [implementation evidence](implementation-evidence.md).
