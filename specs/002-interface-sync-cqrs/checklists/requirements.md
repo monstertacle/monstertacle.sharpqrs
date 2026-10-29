@@ -26,8 +26,9 @@
 ## Feature Readiness
 
 - [x] Every functional requirement identifies an acceptance check.
-- [x] The three stories can be demonstrated separately.
-- [x] No unapproved dependency or numerical gate is introduced.
+- [x] The four stories can be demonstrated separately.
+- [x] The requested coverage development tool is explicit; new thresholds and baseline
+  decisions remain subject to approval during planning.
 - [x] Content uses British English.
 
 ## Notes
@@ -38,3 +39,6 @@
 - No extension hooks are configured; `.specify/extensions.yml` is absent.
 - Specify is complete. User approval is required before Clarify and between later
   phases under Constitution principle V.
+- Coverage extension reviewed: FR-011–FR-014 and SC-006–SC-007 cover marketplace
+  installation, pinned tooling, both CI platforms, evidence integrity and retained
+  per-library coverage floors. Pipeline implementation remains pending.

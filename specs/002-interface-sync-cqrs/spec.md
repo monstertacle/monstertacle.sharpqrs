@@ -10,6 +10,8 @@
 
 **Input**: Use Spec Kit to improve SOLID design through appropriate interfaces,
 explain concrete handler registration, and support synchronous and asynchronous CQRS.
+Additional request: permanently integrate Codemetr.CSharp.Cover through its marketplace
+plugin and a reproducible local and CI coverage check.
 
 ## User Scenarios & Testing
 
@@ -80,6 +82,30 @@ per mode, and verify independent routing, cancellation and lifetimes.
 4. **Given** only a synchronous mapping, **when** asynchronous dispatch is attempted,
    **then** it fails clearly without automatic adaptation or background scheduling.
 
+### User Story 4 - Make coverage checks reproducible (Priority: P1)
+
+As a maintainer, I can use the published Codemetr coverage marketplace skills for
+coverage work and rely on mandatory local and CI checks before acceptance.
+
+**Why this priority**: An installed assistant skill alone cannot enforce coverage
+or prevent missing measurements from being mistaken for passing checks.
+
+**Independent Test**: Restore the pinned coverage tool in a clean checkout and run
+the same complete verification on Linux and Windows, including negative fixtures.
+
+**Acceptance Scenarios**:
+
+1. **Given** the published coverage marketplace plugin, **when** it is installed,
+   **then** its coverage and coverage-guard skills are available and their source
+   and version are documented separately from the executable tool version.
+2. **Given** a clean checkout, **when** local or hosted verification runs, **then**
+   the pinned coverage tool evaluates fresh coverage and test-result evidence and
+   emits complete machine-readable reports for the checked revision.
+3. **Given** missing, stale, malformed or partial evidence, a failed test run or
+   coverage findings, **when** mandatory verification runs, **then** it fails clearly.
+4. **Given** one production library below 90% line coverage, **when** checks run,
+   **then** verification fails even if aggregate coverage exceeds 90%.
+
 ### Edge Cases
 
 - Null requests, handler instances and actual results are rejected in both modes;
@@ -136,6 +162,23 @@ per mode, and verify independent routing, cancellation and lifetimes.
   interfaces. Acceptance: requirements-to-contract review and no reverse dependency
   from core to integration.
 
+- **FR-011**: The published `codemetr-csharp-cover` marketplace plugin MUST be
+  installed and its coverage skills documented for project work. Plugin and tool
+  provenance MUST be recorded independently. Acceptance: Story 4 scenario 1.
+- **FR-012**: `Codemetr.CSharp.Cover.Tool` MUST be pinned repository-locally and its
+  complete coverage check MUST be mandatory in local, Windows CI, Linux CI and
+  release verification. Existing fresh Cobertura and TRX evidence SHOULD be reused
+  when validated by the tool. Acceptance: Story 4 scenarios 2 and 3.
+- **FR-013**: Coverage reports MUST identify measured source, test results, execution
+  scope and diff provenance, and expose per-type/member coverage and uncovered
+  changed lines. Missing history or an unresolved comparison base MUST fail clearly.
+  Acceptance: report inspection and negative evidence/base-resolution checks.
+- **FR-014**: Integration MUST preserve the existing independent 90% line-coverage
+  gate for each production library, TDD and meaningful assertions. Additional
+  branch, diff, member or risk thresholds MUST be explicitly reviewed and approved
+  during Plan. Baseline creation or acceptance of existing gaps MUST NOT be implicit.
+  Acceptance: Story 4 scenario 4, configuration review and negative gate checks.
+
 ### Key Entities
 
 - **Request and result**: An exact command or query and its non-null result contract.
@@ -157,6 +200,12 @@ per mode, and verify independent routing, cancellation and lifetimes.
 - **SC-005**: Each documented ownership and cancellation scenario has a passing
   observable check; each added abstraction has a traceable consumer requirement.
 
+- **SC-006**: A clean checkout runs the same mandatory coverage check locally and
+  in both hosted operating systems, with complete retained reports and failing
+  negative evidence checks.
+- **SC-007**: A library below its existing coverage floor cannot pass through
+  aggregation, changed exclusions, partial measurement or a newly accepted baseline.
+
 ## Assumptions
 
 - Constitution 2.0.0 and the approved metrics profile remain unchanged. Staged approval,
@@ -169,6 +218,9 @@ per mode, and verify independent routing, cancellation and lifetimes.
   transport, retries and transactions are outside this feature.
 - If additive compatibility cannot be preserved, the design requires a separately
   approved scope change and migration guidance.
-- No new dependency, tool version, numerical gate or publication is requested.
+- The coverage request authorises marketplace plugin installation and proposes a
+  pinned development-only coverage tool; it adds no runtime library dependency.
+  Exact executable version and gate configuration must be verified during Plan.
+  No new numerical threshold, baseline or package publication is authorised here.
 - No blocking requirements question was identified during Specify. Clarify must
   still assess these assumptions after the user approves the transition.
