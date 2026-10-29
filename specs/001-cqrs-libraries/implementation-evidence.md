@@ -1,6 +1,6 @@
 # Implementation evidence
 
-Updated: 2026-10-29T05:57:55Z
+Updated: 2026-10-29T06:01:17Z
 
 ## Authority, phase review and scope
 
@@ -233,3 +233,33 @@ A [new repair source manifest](review/ci-collector-source-manifest.json) freezes
 updated inputs; the original reviewed manifest remains intact. Remaining steps:
 commit/push the candidate, verify its clean fresh checkout and require both hosted
 Windows/Linux jobs to pass before closing T052, T057, T059 and T060.
+
+
+### Windows package-consumer follow-up
+
+Recorded: 2026-10-29T06:01:17Z
+
+Repair commit `677426a7de32c7fceed4c90ad83d6316d05cee4d` passed a clean fresh checkout
+in `verify-20261029T055805Z-2f9a14a17b6f45abb44e438b40e73c59`, with all repair-manifest
+inputs matching. Hosted [run 40826389655](https://github.com/monstertacle/monstertacle.sharpqrs/actions/runs/40826389655)
+passed Linux. Windows now passed coverage (100% lines for both libraries), metrics,
+audit and both example checks. It reached package-consumer restore and failed with
+NU1301 because the repeated CLI `--source` HTTPS value became a local Windows path.
+
+Owner and scope remain this feature's implementation/verification work (T054/T057).
+The bounded correction writes a temporary `NuGet.Config`, clears inherited sources,
+and declares exactly the local package feed and nuget.org, with an explicit audit
+source. Consumer restore uses `--configfile`, avoiding multi-source CLI parsing.
+No feed, package version, production code or acceptance threshold is added or removed.
+
+`tests/Scripts/CheckPackages.Tests.ps1` first failed against a callable configuration
+stub with `The consumer NuGet configuration must be created.` It then passed after
+XML-safe config creation, including an absolute feed path with spaces and `&`, exact
+HTTPS preservation, two-source scope and explicit audit source. This harness is now
+mandatory in the shared verifier. The actual hosted NU1301 failure supplies the
+platform regression; the next Windows run must prove its resolution.
+
+Full local verification passed in `verify-20261029T060030Z-a5b1d21b05c2424abd363d5811a82dfd` with the follow-up working tree:
+87 tests, both libraries at 100% lines, the metrics/audit gates, web/standalone and both
+isolated package consumers all passed. The [follow-up source manifest](review/ci-windows-source-manifest.json)
+freezes these inputs separately from the previous collector candidate.

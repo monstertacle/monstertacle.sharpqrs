@@ -85,3 +85,9 @@ MIT licence, complete production-assembly scope and per-library coverage thresho
 and no hand-written source exclusions. The verifier requires exactly one GUID-scoped
 collector report, ignores TRX attachment mirrors, and preserves the report contents
 before applying the existing freshness and coverage checks.
+
+Package-consumer restores use an explicit temporary `NuGet.Config` with inherited
+sources cleared and exactly the local package feed plus nuget.org. The explicit
+nuget.org audit source is retained. This avoids Windows interpreting repeated CLI
+`--source` values as filesystem paths; XML construction preserves feed paths with
+spaces and metacharacters. The configuration has dependency-free regression checks.

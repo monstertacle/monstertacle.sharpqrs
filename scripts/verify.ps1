@@ -36,7 +36,7 @@ function Invoke-RepositoryVerification {
     Push-Location $root
     try {
         Assert-VerificationScripts $root
-        foreach ($name in @('CheckCoverage', 'CheckMetrics', 'CheckAudit', 'Verify')) {
+        foreach ($name in @('CheckCoverage', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'Verify')) {
             Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', "tests/Scripts/$name.Tests.ps1")
         }
         $started = [datetime]::UtcNow

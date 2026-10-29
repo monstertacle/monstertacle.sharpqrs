@@ -1,10 +1,18 @@
-param([Parameter(Mandatory)][string]$OutputDirectory)
+param([string]$OutputDirectory)
 $ErrorActionPreference = 'Stop'
 function Invoke-PackageCommand {
     param([string[]]$Arguments)
     & dotnet @Arguments
     if ($LASTEXITCODE -ne 0) { throw "Package-consumer command failed: dotnet $Arguments" }
 }
+function Write-ConsumerNuGetConfig {
+    param([string]$Path, [string]$LocalFeed)
+    [xml]$configuration = '<configuration><packageSources><clear /><add key="local" /><add key="nuget.org" value="https://api.nuget.org/v3/index.json" /></packageSources><auditSources><clear /><add key="nuget.org" value="https://api.nuget.org/v3/index.json" /></auditSources></configuration>'
+    $configuration.configuration.packageSources.add[0].SetAttribute('value', $LocalFeed)
+    $configuration.Save($Path)
+}
+if ($MyInvocation.InvocationName -eq '.') { return }
+if ([string]::IsNullOrWhiteSpace($OutputDirectory)) { throw 'Package output directory is required.' }
 $root = (Get-Location).Path
 $feed = Join-Path ([IO.Path]::GetFullPath($OutputDirectory)) 'packages'
 New-Item $feed -ItemType Directory -Force | Out-Null
@@ -29,6 +37,8 @@ $scratch = Join-Path $temporaryBase "sharpqrs-consumers-$([guid]::NewGuid().ToSt
 New-Item $scratch -ItemType Directory | Out-Null
 try {
     Copy-Item global.json (Join-Path $scratch 'global.json')
+    $configPath = Join-Path $scratch 'NuGet.Config'
+    Write-ConsumerNuGetConfig $configPath $feed
     foreach ($mode in @('standalone', 'integrated')) {
         $directory = Join-Path $scratch $mode
         New-Item $directory -ItemType Directory | Out-Null
@@ -62,7 +72,7 @@ internal static class Program
         $project = "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup><ItemGroup>$references</ItemGroup></Project>"
         $projectPath = Join-Path $directory 'Consumer.csproj'
         Set-Content $projectPath $project
-        Invoke-PackageCommand @('restore', $projectPath, '--source', $feed, '--source', 'https://api.nuget.org/v3/index.json', '--packages', (Join-Path $scratch 'packages'))
+        Invoke-PackageCommand @('restore', $projectPath, '--configfile', $configPath, '--packages', (Join-Path $scratch 'packages'))
         Invoke-PackageCommand @('run', '--project', $projectPath, '-c', 'Release', '--no-restore')
         $runtime = Get-Content (Join-Path $directory 'bin/Release/net10.0/Consumer.runtimeconfig.json') -Raw
         if ($mode -eq 'standalone' -and $runtime.Contains('Microsoft.AspNetCore.App')) { throw 'Standalone consumer requires ASP.NET Core.' }
