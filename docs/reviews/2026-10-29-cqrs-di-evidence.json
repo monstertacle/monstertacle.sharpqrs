@@ -1,0 +1,117 @@
+{
+  "reviewedRevision": "9216f275256afcd70c6dec44cf9651d7cf12f837",
+  "sourceArchiveSha256": "62532f39ed723a8952d2f80799413b594177fc7f47319862bacf355975a2a953",
+  "recordedUtc": "2026-10-29T20:32:45.209762+00:00",
+  "baseline": {
+    "status": "passed",
+    "revision": "9216f275256afcd70c6dec44cf9651d7cf12f837",
+    "workingTree": null,
+    "tests": {
+      "total": "139",
+      "executed": "139",
+      "passed": "139",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "coverage": {
+      "files": 53,
+      "types": 53,
+      "members": 53,
+      "line": 98.3,
+      "branch": 92.1,
+      "coveredLines": 290,
+      "coverableLines": 295,
+      "coveredBranches": 94,
+      "branches": 102,
+      "diffLine": 97.4,
+      "diffBranch": 88,
+      "violations": 0,
+      "new": 0,
+      "worsened": 0,
+      "baselined": 0,
+      "stale": 0,
+      "tightenable": 0,
+      "unreported": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "unmapped": 0,
+      "listed": 0,
+      "omitted": 0
+    },
+    "metricsFiles": 110,
+    "typeCycles": [],
+    "namespaceCycles": [],
+    "limits": "Static synthetic compilation uses platform references only; test coverage proves execution, not architectural adequacy."
+  },
+  "reviewers": [
+    {
+      "position": "change advocate",
+      "startedUtc": "2026-10-29T20:26:04Z",
+      "endedUtc": "2026-10-29T20:27:58Z",
+      "seconds": 114,
+      "selfReportedTopLevelCalls": 15,
+      "selfReportedUnderlyingCalls": 19
+    },
+    {
+      "position": "status quo defence",
+      "startedUtc": "2026-10-29T20:26:15Z",
+      "endedUtc": "2026-10-29T20:28:26Z",
+      "seconds": 131,
+      "selfReportedTopLevelCalls": 16,
+      "selfReportedUnderlyingCalls": 16
+    }
+  ],
+  "probes": [
+    {
+      "Name": "sync-with-external-async",
+      "Contract": false,
+      "Status": "rejected",
+      "Diagnostic": "External dispatcher registration conflicts with Monstertacle.SharpQrs.ICommandDispatcher."
+    },
+    {
+      "Name": "sync-with-external-async",
+      "Contract": true,
+      "Status": "passed",
+      "Value": 42
+    },
+    {
+      "Name": "copied-collection",
+      "OriginalChanged": false,
+      "Status": "passed",
+      "Value": 2
+    },
+    {
+      "Name": "copied-collection",
+      "OriginalChanged": true,
+      "Status": "rejected",
+      "Diagnostic": "Expected exactly one unkeyed handler service for Monstertacle.SharpQrs.ICommandHandler`2[[Request, Probe, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]; found 0."
+    },
+    {
+      "Name": "container-owned-disposable-aliases",
+      "Status": "completed",
+      "Disposals": 3
+    },
+    {
+      "Name": "later-concrete-registration",
+      "Status": "completed",
+      "Value": 99
+    }
+  ],
+  "dispositions": {
+    "DI-001": "Open, concrete follow-up in docs/plans/di-composition-hardening.md",
+    "DI-002": "Open, composition-boundary design needed before implementation; same follow-up plan",
+    "UX-001": "Open, clarify or enforce later concrete-registration policy; same follow-up plan",
+    "UX-002": "Open, document consumer ownership and safe scope recipes; same follow-up plan"
+  }
+}
