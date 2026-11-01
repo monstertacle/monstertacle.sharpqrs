@@ -62,6 +62,20 @@ standalone and integrated consumers outside the repository using package referen
 only. The standalone runtime configuration must not require ASP.NET Core. This
 checks local package consumption; publication requires separate authorisation.
 
+## Feature branches and the Spec Kit git extension
+
+The bundled Spec Kit `git` extension (1.0.1) is installed for explicit use only. All
+its hooks are disabled in `.specify/extensions.yml`: `/speckit.specify` creates no
+branch and no command commits automatically. Each feature gets exactly one branch,
+created by its author: either a topic branch from current `origin/main` before
+specifying, or `/speckit.git.feature` (Codex: `$speckit-git-feature`) run once on an
+up-to-date `main`, which creates `feature/{number}-{slug}` with the next spec number.
+`/speckit.git.validate` checks the current branch name. `specify extension update git`
+or a reinstall re-enables the hooks and drops the Codex skills; review that diff and
+restore the approved configuration before use. The `speckit` verification stage
+(`scripts/check-speckit.ps1`) rejects any other configuration or an unreviewed
+extension version.
+
 ## Skill sources
 
 Portable instructions were read from `dotnet/skills` at
