@@ -3,14 +3,14 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot/package-version.ps1"
 function Invoke-VerificationStages {
     param([scriptblock]$Runner)
-    foreach ($stage in @('restore', 'build', 'tests', 'coverage', 'cover', 'compatibility', 'metrics', 'audit', 'standalone', 'web', 'packages')) {
+    foreach ($stage in @('speckit', 'restore', 'build', 'tests', 'coverage', 'cover', 'compatibility', 'metrics', 'audit', 'standalone', 'web', 'packages')) {
         $result = & $Runner $stage
         if ($result -ne 0) { throw "Verification stage $stage failed with exit $result." }
     }
 }
 function Assert-VerificationScripts {
     param([string]$Root)
-    foreach ($name in @('coverage', 'cover', 'compatibility', 'metrics', 'audit', 'packages', 'web')) {
+    foreach ($name in @('speckit', 'coverage', 'cover', 'compatibility', 'metrics', 'audit', 'packages', 'web')) {
         if (-not (Test-Path -LiteralPath (Join-Path $Root "scripts/check-$name.ps1"))) { throw "Missing mandatory $name checker." }
     }
 }
@@ -39,7 +39,7 @@ function Invoke-RepositoryVerification {
     try {
         $version = Resolve-PackageVersion $PackageVersion $root
         Assert-VerificationScripts $root
-        foreach ($name in @('CheckCoverage', 'CheckCover', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'PackageVersion', 'ReleasePackages', 'Verify')) {
+        foreach ($name in @('CheckSpeckit', 'CheckCoverage', 'CheckCover', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'PackageVersion', 'ReleasePackages', 'Verify')) {
             Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', "tests/Scripts/$name.Tests.ps1")
         }
         $started = [datetime]::UtcNow
@@ -54,6 +54,7 @@ function Invoke-RepositoryVerification {
             param($stage)
             Write-Host "Verifying $stage..."
             switch ($stage) {
+                'speckit' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-speckit.ps1') }
                 'restore' {
                     Invoke-CheckedCommand 'dotnet' @('tool', 'restore')
                     Invoke-CheckedCommand 'dotnet' @('restore', 'Monstertacle.SharpQrs.slnx', '--locked-mode', "-p:Version=$version")
