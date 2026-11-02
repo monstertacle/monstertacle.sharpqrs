@@ -29,9 +29,9 @@ No package was uploaded, no workflow was dispatched and no downloaded binary was
 ## Verification of this change
 
 The diff adds documentation and specification files and edits `.github/RELEASING.md` only; library sources, projects,
-scripts, workflows and quality configuration are unchanged. Results of `scripts/verify.ps1` and hosted Verify are recorded
-in the pull request.
+scripts, workflows and quality configuration are unchanged.
 
-Local `scripts/verify.ps1` (2026-11-02T20:18:36Z–20:19:20Z, SDK 10.0.403, PowerShell 7.6.9, base `7dcef46` with this
-working tree): status `passed`, 187/187 tests, all stages including coverage, metrics, audit and package consumers. Hosted
-Verify on Linux and Windows runs on the pull request.
+- Local `scripts/verify.ps1` (2026-11-02T20:18:36Z–20:19:20Z, SDK 10.0.403, PowerShell 7.6.9, base `7dcef46` with this
+  working tree): status `passed`, 187/187 tests, all stages including coverage, metrics, audit and package consumers.
+- Hosted Verify on commit `3be714b2646217c4db95c1e98ac5876a07a888fe`: push run 41518211315 and pull request run 41518258268,
+  each `success` on `ubuntu-24.04` and `windows-2025`. Hosted Verify on the commit adding this note runs on the pull request.
