@@ -64,6 +64,21 @@ Version inputs accept forms such as `0.1.0` and `0.2.0-rc.1`, without a `v` pref
 or build metadata. Default CI still uses the matching versions in the two projects.
 The first planned prerelease is `0.1.0-alpha.1`.
 
+## Record each publication
+
+The project files keep their default version; the published version comes from the
+workflow input. After each publication, add `docs/releases/<version>.md` naming the
+source commit, release run and jobs, version input, producer artefact, canonical and
+served package hashes, the repository signature, the NuGet content hashes and what
+was not established. Record only values compared with their public source, and do so
+before the producer artefact expires.
+
+- [0.2.0-alpha.1](../docs/releases/0.2.0-alpha.1.md)
+
+The earlier 0.1.0-alpha.1 publication has no release record.
+
+## Install
+
 After indexing, consumers can install the integration with:
 
 ```bash
