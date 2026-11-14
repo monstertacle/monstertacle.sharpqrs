@@ -1,11 +1,11 @@
 # Development
 
-Use .NET SDK 10.0.403, C# 14 and PowerShell 7. The SDK pin disables roll-forward
-and prereleases. All five projects target `net10.0`; central package versions
+Use .NET SDK 11.0.100, the .NET 10.0.403 SDK/runtime set, C# 14 and PowerShell 7. The SDK pin disables roll-forward
+and prereleases. All five projects target `net10.0` and `net11.0`; central package versions
 and each project's lock file are committed. The test project uses xUnit v2 with
 VSTest and Coverlet collector, not Microsoft.Testing.Platform.
 Package pruning is disabled only in the test project to retain the explicitly
-planned DI 10.0.14 dependency alongside the shared framework without NU1510.
+planned target-specific DI dependency alongside the shared framework without NU1510.
 
 Run `pwsh -NoProfile -File scripts/verify.ps1`. On the shared development machine,
 use `bash ~/dev/scripts/run-capped.sh -- pwsh -NoProfile -File scripts/verify.ps1`.
@@ -50,7 +50,7 @@ Review SOLID, British English, public contracts, compatibility and licences expl
 ## Audit and packaging
 
 `check-audit.ps1` uses version-1 JSON dependency and vulnerability reports, checks
-all solution projects and their `net10.0` frameworks, and reconciles the complete
+all solution projects and both target frameworks, and reconciles the complete
 inventory against lock files. nuget.org is the explicit package and audit source.
 Every reported vulnerability fails, regardless of severity or process exit status.
 Missing/malformed reports, source failures and unexpected diagnostics fail closed.
@@ -169,3 +169,41 @@ The isolated integrated package consumer also uses all four interface selectors 
 preparation, proving that the packaged public setup API supports both execution
 modes. The reusable verifier runs the finite `--worker` example as well as HTTP
 smoke checks, and tests exercise its decorated scoped operations and original errors.
+
+## Dual-target verification
+
+The pinned SDK is 11.0.100; .NET 10 remains installed for legacy application runs
+and the unchanged pinned tools. Microsoft integration dependencies use 10.0.14
+for net10.0 and 11.0.0 for net11.0. Lock files record both dependency graphs.
+C# 14 and the existing analyser profile remain explicit.
+
+The verifier builds both targets and runs their complete test suites sequentially.
+Each target has its own `tests.trx`, `coverage.cobertura.xml` and `cover.json` in
+`artifacts/verify-*/net10.0/` or `net11.0/`. Existing per-library coverage floors
+and complete coverage-tool checks apply to each target separately. Static metrics
+still measure all hand-written source once; no source or rule is excluded.
+
+Audit validates both framework sets and reconciles each against its lock section.
+Both NuGet packages must contain both assembly and dependency groups. Separate
+standalone and integrated consumers execute for each target. The published consumer
+compatibility check deliberately stays on net10.0, the published baseline target.
+Standalone, HTTP and worker examples run for each target. Choose a target explicitly
+when running examples manually, for example:
+
+```powershell
+dotnet run --project examples/Standalone -c Release --framework net11.0
+```
+
+The single root verification manifest lists both supported targets; release
+selection rejects missing, duplicate or incomplete target declarations. The Windows
+and Linux jobs install both SDK/runtime sets and use the same complete verifier.
+Only a successful clean verification qualifies packages for the manual release flow.
+
+On this shared host the two SDKs are installed independently of the system SDK at
+`/home/user1/.local/share/dotnet-sharpqrs`. Select that installation for verification:
+
+```bash
+PATH=/home/user1/.local/share/dotnet-sharpqrs:$PATH \
+DOTNET_ROOT=/home/user1/.local/share/dotnet-sharpqrs \
+bash /home/user1/dev/scripts/run-capped.sh -- pwsh -NoProfile -File scripts/verify.ps1
+```

@@ -13,6 +13,10 @@ function Get-VerifiedReleasePackages {
     if (@($manifest.workingTree | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }).Count -gt 0) {
         throw 'Release verification must use a clean checkout.'
     }
+    $frameworks = @($manifest.frameworks | Sort-Object)
+    if ($frameworks.Count -ne 2 -or (Compare-Object @('net10.0', 'net11.0') $frameworks)) {
+        throw 'Release verification must include both supported target frameworks exactly once.'
+    }
     $feed = Join-Path $manifests[0].DirectoryName 'packages'
     $packages = @(Get-ChildItem -LiteralPath $feed -File -Filter '*.nupkg')
     if ($packages.Count -ne 2) { throw 'Expected exactly the two verified production packages.' }

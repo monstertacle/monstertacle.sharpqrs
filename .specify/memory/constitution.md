@@ -1,6 +1,8 @@
 # Monstertacle.SharpQrs Constitution
 
-**Status**: Ratified by the user on 2026-10-28.
+**Status**: Version 2.1.0 approved by the user on 2026-11-14. Original ratification:
+2026-10-28. The user also authorised autonomous progression through the remaining
+Spec Kit phases for the .NET 11 support feature.
 
 ## Core Principles
 
@@ -123,14 +125,22 @@ Coverage is a minimum standard, not a substitute for TDD or evidence of effectiv
 
 ## Technical Constraints and Sources
 
-- The programming language is C#; libraries and tests MUST target .NET 10.
-  ASP.NET Core integration MUST use major version 10. SDK and development tools
-  MUST be selected reproducibly. Preview features require explicit user approval.
+- The programming language is C#; libraries and tests MUST target both .NET 10
+  and .NET 11. Existing .NET 10 consumers MUST remain supported.
+  Integration dependencies MUST match each target framework's major version.
+  SDK and development tools MUST be selected reproducibly. Preview features
+  require explicit user approval.
+- Each supported target framework MUST receive the applicable build, behavioural,
+  coverage, audit, example and isolated package-consumer checks. The existing
+  coverage floors apply independently to each production library on each target;
+  results MUST NOT be averaged across frameworks. Source and binary compatibility
+  checks MUST preserve the published .NET 10 contracts. Framework support MUST
+  NOT be claimed from a successful build alone.
 - `https://github.com/dotnet/skills` MUST be used as a source of applicable development
   skills; `https://github.com/codemetr/skills` MUST be used for metrics analysis and
   guard skills. Relevant skills MUST be read and applied before the corresponding
   work. Sources MUST be traceable by path and commit or version.
-- Skills MUST be checked for .NET 10 compatibility. They replace neither tool
+- Skills MUST be checked for applicability to both .NET 10 and .NET 11. They replace neither tool
   execution nor quality gates and MUST NOT weaken project rules. Missing skills or
   tools MUST be disclosed. Installation and version changes require user approval.
   Instructions intended for another host MUST NOT be followed blindly.
@@ -182,4 +192,4 @@ Ratification removes that suffix and sets the ratification date. Later amendment
 preserve that date and update the amendment date. Planning and acceptance reviews MUST
 identify the Constitution version assessed.
 
-**Version**: 2.0.0 | **Ratified**: 2026-10-28 | **Last Amended**: 2026-10-28
+**Version**: 2.1.0 | **Ratified**: 2026-10-28 | **Last Amended**: 2026-11-14

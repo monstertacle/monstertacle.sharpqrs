@@ -27,6 +27,12 @@ try {
     Assert-ReleaseRejected { Get-VerifiedReleasePackages $temporary '1.2.3-rc.1' $revision }
     $manifest.workingTree = $null
     $manifest | ConvertTo-Json | Set-Content "$runDirectory/run.json"
+    Assert-ReleaseRejected { Get-VerifiedReleasePackages $temporary '1.2.3-rc.1' $revision }
+    $manifest.frameworks = @('net10.0')
+    $manifest | ConvertTo-Json | Set-Content "$runDirectory/run.json"
+    Assert-ReleaseRejected { Get-VerifiedReleasePackages $temporary '1.2.3-rc.1' $revision }
+    $manifest.frameworks = @('net10.0', 'net11.0')
+    $manifest | ConvertTo-Json | Set-Content "$runDirectory/run.json"
     $selected = @(Get-VerifiedReleasePackages $temporary '1.2.3-rc.1' $revision)
     try { Assert-True ($selected.Count -eq 2) 'Exactly both verified packages must be selected.' } catch { $script:releaseFailures.Add($_.ToString()) }
     try { Assert-True ($selected[0].Name -ceq 'Monstertacle.SharpQrs.1.2.3-rc.1.nupkg') 'The core must be published first.' } catch { $script:releaseFailures.Add($_.ToString()) }

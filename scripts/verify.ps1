@@ -42,13 +42,14 @@ function Invoke-RepositoryVerification {
         foreach ($name in @('CheckSpeckit', 'CheckCoverage', 'CheckCover', 'CheckMetrics', 'CheckAudit', 'CheckPackages', 'PackageVersion', 'ReleasePackages', 'Verify')) {
             Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', "tests/Scripts/$name.Tests.ps1")
         }
+        $frameworks = @('net10.0', 'net11.0')
         $started = [datetime]::UtcNow
         $run = Join-Path $root "artifacts/verify-$($started.ToString('yyyyMMddTHHmmssZ'))-$([guid]::NewGuid().ToString('N'))"
         New-Item $run -ItemType Directory | Out-Null
         $revision = & git rev-parse HEAD
         if ($LASTEXITCODE -ne 0) { throw 'Unable to identify source revision.' }
         $manifest = [ordered]@{ revision = $revision; startedUtc = $started.ToString('o'); sdk = (& dotnet --version)
-            powershell = $PSVersionTable.PSVersion.ToString(); packageVersion = $version; coverageBase = $CoverageBase; status = 'running'; workingTree = (& git status --porcelain) }
+            powershell = $PSVersionTable.PSVersion.ToString(); packageVersion = $version; coverageBase = $CoverageBase; frameworks = $frameworks; status = 'running'; workingTree = (& git status --porcelain) }
         $manifest | ConvertTo-Json -Depth 5 | Set-Content "$run/run.json"
         Invoke-VerificationStages {
             param($stage)
@@ -61,22 +62,28 @@ function Invoke-RepositoryVerification {
                 }
                 'build' { Invoke-CheckedCommand 'dotnet' @('build', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-restore', "-p:Version=$version") }
                 'tests' {
-                    Invoke-CheckedCommand 'dotnet' @('test', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-build', '--no-restore',
-                        '--results-directory', $run, '--logger', 'trx;LogFileName=tests.trx',
-                        '--collect', 'XPlat Code Coverage', '--settings', 'coverage.runsettings', "-p:Version=$version")
-                    Publish-CoverageReport $run | Out-Null
-                    [xml]$trx = Get-Content "$run/tests.trx" -Raw
-                    if ([int]$trx.TestRun.ResultSummary.Counters.executed -le 0 -or [int]$trx.TestRun.ResultSummary.Counters.failed -ne 0) { throw 'No passing executed tests.' }
+                    foreach ($framework in $frameworks) {
+                        $targetRun = Join-Path $run $framework
+                        New-Item $targetRun -ItemType Directory | Out-Null
+                        Invoke-CheckedCommand 'dotnet' @('test', 'Monstertacle.SharpQrs.slnx', '-c', 'Release', '--no-build', '--no-restore',
+                            '--framework', $framework, '--results-directory', $targetRun, '--logger', 'trx;LogFileName=tests.trx',
+                            '--collect', 'XPlat Code Coverage', '--settings', 'coverage.runsettings', "-p:Version=$version")
+                        Publish-CoverageReport $targetRun | Out-Null
+                        [xml]$trx = Get-Content "$targetRun/tests.trx" -Raw
+                        if ([int]$trx.TestRun.ResultSummary.Counters.executed -le 0 -or [int]$trx.TestRun.ResultSummary.Counters.failed -ne 0) { throw 'No passing executed tests.' }
+                    }
                 }
-                'coverage' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-coverage.ps1', '-ReportPath', "$run/coverage.cobertura.xml", '-NotBefore', $started.ToString('o')) }
-                'cover' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-cover.ps1', '-Directory', $run, '-BaseRevision', $CoverageBase, '-NotBefore', $started.ToString('o')) }
+                'coverage' { foreach ($framework in $frameworks) { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-coverage.ps1', '-ReportPath', "$run/$framework/coverage.cobertura.xml", '-NotBefore', $started.ToString('o')) } }
+                'cover' { foreach ($framework in $frameworks) { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-cover.ps1', '-Directory', (Join-Path $run $framework), '-BaseRevision', $CoverageBase, '-NotBefore', $started.ToString('o')) } }
                 'compatibility' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-compatibility.ps1', '-OutputDirectory', $run) }
                 'metrics' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-metrics.ps1', '-ReportPath', "$run/metrics.json") }
                 'audit' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-audit.ps1', '-OutputDirectory', $run) }
-                'standalone' { Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Standalone', '-c', 'Release', '--no-build', '--no-restore') }
+                'standalone' { foreach ($framework in $frameworks) { Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Standalone', '-c', 'Release', '--framework', $framework, '--no-build', '--no-restore') } }
                 'web' {
-                    Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-web.ps1', '-OutputDirectory', $run)
-                    Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Web', '-c', 'Release', '--no-build', '--no-restore', '--', '--worker')
+                    foreach ($framework in $frameworks) {
+                        Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-web.ps1', '-OutputDirectory', (Join-Path $run $framework), '-Framework', $framework)
+                        Invoke-CheckedCommand 'dotnet' @('run', '--project', 'examples/Web', '-c', 'Release', '--framework', $framework, '--no-build', '--no-restore', '--', '--worker')
+                    }
                 }
                 'packages' { Invoke-CheckedCommand 'pwsh' @('-NoProfile', '-File', 'scripts/check-packages.ps1', '-OutputDirectory', $run, '-PackageVersion', $version) }
             }

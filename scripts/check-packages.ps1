@@ -12,6 +12,15 @@ function Write-ConsumerNuGetConfig {
     $configuration.configuration.packageSources.add[0].SetAttribute('value', $LocalFeed)
     $configuration.Save($Path)
 }
+function Assert-PackageTargets {
+    param([string[]]$Entries, [string[]]$FrameworkGroups, [string]$Name)
+    $expected = @('net10.0', 'net11.0')
+    $groups = @($FrameworkGroups | Sort-Object)
+    if ($groups.Count -ne 2 -or (Compare-Object $expected $groups)) { throw 'Package dependency groups differ from supported targets.' }
+    $assemblies = @($Entries | Where-Object { $_ -like "lib/*/$Name.dll" } | Sort-Object)
+    $wanted = @($expected | ForEach-Object { "lib/$_/$Name.dll" })
+    if ($assemblies.Count -ne 2 -or (Compare-Object $wanted $assemblies)) { throw 'Package assemblies differ from supported targets.' }
+}
 if ($MyInvocation.InvocationName -eq '.') { return }
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) { throw 'Package output directory is required.' }
 $root = (Get-Location).Path
@@ -28,8 +37,9 @@ foreach ($name in @('Monstertacle.SharpQrs', 'Monstertacle.SharpQrs.AspNetCore')
         if ($nuspec.Count -ne 1) { throw 'Missing package metadata.' }
         $reader = [IO.StreamReader]::new($nuspec[0].Open())
         try { [xml]$metadata = $reader.ReadToEnd() } finally { $reader.Dispose() }
+        Assert-PackageTargets @($archive.Entries.FullName) @($metadata.package.metadata.dependencies.group.targetFramework) $name
         if ($metadata.package.metadata.license.'#text' -ne 'MIT' -or $metadata.package.metadata.version -ne $PackageVersion) { throw 'Incorrect package licence or version.' }
-        if ($name -eq 'Monstertacle.SharpQrs' -and $metadata.package.metadata.dependencies.group.dependency) { throw 'The core package must be dependency-free.' }
+        if ($name -eq 'Monstertacle.SharpQrs' -and $metadata.SelectNodes("//*[local-name()='dependency']").Count -gt 0) { throw 'The core package must be dependency-free.' }
         if (-not ($archive.Entries | Where-Object FullName -eq 'LICENSE')) { throw 'The MIT notice is missing from the package.' }
     } finally { $archive.Dispose() }
 }
@@ -41,14 +51,16 @@ try {
     Copy-Item global.json (Join-Path $scratch 'global.json')
     $configPath = Join-Path $scratch 'NuGet.Config'
     Write-ConsumerNuGetConfig $configPath $feed
-    foreach ($mode in @('standalone', 'integrated')) {
-        $directory = Join-Path $scratch $mode
-        New-Item $directory -ItemType Directory | Out-Null
-        Copy-Item examples/Standalone/*.cs $directory
-        $references = "<PackageReference Include=`"Monstertacle.SharpQrs`" Version=`"$PackageVersion`" />"
-        if ($mode -eq 'integrated') {
-            $references += "<PackageReference Include=`"Monstertacle.SharpQrs.AspNetCore`" Version=`"$PackageVersion`" /><PackageReference Include=`"Microsoft.Extensions.DependencyInjection`" Version=`"10.0.14`" />"
-            $program = @'
+    foreach ($framework in @('net10.0', 'net11.0')) {
+        $diVersion = if ($framework -eq 'net11.0') { '11.0.0' } else { '10.0.14' }
+        foreach ($mode in @('standalone', 'integrated')) {
+            $directory = Join-Path $scratch "$framework-$mode"
+            New-Item $directory -ItemType Directory | Out-Null
+            Copy-Item examples/Standalone/*.cs $directory
+            $references = "<PackageReference Include=`"Monstertacle.SharpQrs`" Version=`"$PackageVersion`" />"
+            if ($mode -eq 'integrated') {
+                $references += "<PackageReference Include=`"Monstertacle.SharpQrs.AspNetCore`" Version=`"$PackageVersion`" /><PackageReference Include=`"Microsoft.Extensions.DependencyInjection`" Version=`"$diVersion`" />"
+                $program = @'
 using Microsoft.Extensions.DependencyInjection;
 using Monstertacle.SharpQrs;
 using Monstertacle.SharpQrs.AspNetCore;
@@ -78,15 +90,16 @@ internal static class Program
     }
 }
 '@
-            Set-Content (Join-Path $directory 'Program.cs') $program
+                Set-Content (Join-Path $directory 'Program.cs') $program
+            }
+            $project = "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>$framework</TargetFramework><OutputType>Exe</OutputType><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup><ItemGroup>$references</ItemGroup></Project>"
+            $projectPath = Join-Path $directory 'Consumer.csproj'
+            Set-Content $projectPath $project
+            Invoke-PackageCommand @('restore', $projectPath, '--configfile', $configPath, '--packages', (Join-Path $scratch 'packages'))
+            Invoke-PackageCommand @('run', '--project', $projectPath, '-c', 'Release', '--no-restore')
+            $runtime = Get-Content (Join-Path $directory "bin/Release/$framework/Consumer.runtimeconfig.json") -Raw
+            if ($mode -eq 'standalone' -and $runtime.Contains('Microsoft.AspNetCore.App')) { throw 'Standalone consumer requires ASP.NET Core.' }
         }
-        $project = "<Project Sdk=`"Microsoft.NET.Sdk`"><PropertyGroup><TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup><ItemGroup>$references</ItemGroup></Project>"
-        $projectPath = Join-Path $directory 'Consumer.csproj'
-        Set-Content $projectPath $project
-        Invoke-PackageCommand @('restore', $projectPath, '--configfile', $configPath, '--packages', (Join-Path $scratch 'packages'))
-        Invoke-PackageCommand @('run', '--project', $projectPath, '-c', 'Release', '--no-restore')
-        $runtime = Get-Content (Join-Path $directory 'bin/Release/net10.0/Consumer.runtimeconfig.json') -Raw
-        if ($mode -eq 'standalone' -and $runtime.Contains('Microsoft.AspNetCore.App')) { throw 'Standalone consumer requires ASP.NET Core.' }
     }
 } finally {
     # Only this invocation's unique directory is owned by this script.

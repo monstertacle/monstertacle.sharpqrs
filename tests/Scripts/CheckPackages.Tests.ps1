@@ -16,3 +16,12 @@ try {
     Assert-True ($config.configuration.auditSources.add.value -ceq 'https://api.nuget.org/v3/index.json') 'The audit source must be explicit.'
 } finally { Remove-Item -LiteralPath $temporary -Recurse -Force }
 Write-Output 'Package-consumer configuration cases passed.'
+
+$targets = @('net10.0', 'net11.0')
+$assets = @('lib/net10.0/Example.dll', 'lib/net11.0/Example.dll')
+Assert-PackageTargets $assets $targets 'Example'
+Assert-Rejected { Assert-PackageTargets @('lib/net10.0/Example.dll') $targets 'Example' }
+Assert-Rejected { Assert-PackageTargets $assets @('net10.0') 'Example' }
+Assert-Rejected { Assert-PackageTargets $assets @('net10.0', 'net10.0') 'Example' }
+Assert-Rejected { Assert-PackageTargets ($assets + 'lib/net9.0/Example.dll') $targets 'Example' }
+Write-Output 'Dual-target package asset and dependency group cases passed.'

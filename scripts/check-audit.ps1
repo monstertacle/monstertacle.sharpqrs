@@ -14,14 +14,16 @@ function Test-AuditReports {
         if (Compare-Object $actual $expected) { throw 'Dependency reports do not match the solution projects.' }
         foreach ($project in $report.projects) {
             if ($project.problems -or $project.errors -or $project.error) { throw 'Project audit failed.' }
-            if ($project.frameworks.Count -ne 1 -or $project.frameworks[0].framework -ne 'net10.0') { throw 'Missing or unexpected target framework.' }
-            $framework = $project.frameworks[0]
-            if ($framework.problems -or $framework.errors -or $framework.error) { throw 'Framework audit failed.' }
-            $packages = @($framework.topLevelPackages) + @($framework.transitivePackages)
-            foreach ($package in $packages) {
-                if ($null -eq $package) { continue }
-                if (-not $package.id -or -not $package.resolvedVersion) { throw 'Malformed package inventory.' }
-                if ($package.vulnerabilities.Count -gt 0) { throw "Known vulnerability in $($package.id); all severities fail." }
+            $targets = @($project.frameworks.framework | Sort-Object)
+            if ($targets.Count -ne 2 -or (Compare-Object @('net10.0', 'net11.0') $targets)) { throw 'Missing, duplicate or unexpected target framework.' }
+            foreach ($framework in $project.frameworks) {
+                if ($framework.problems -or $framework.errors -or $framework.error) { throw 'Framework audit failed.' }
+                $packages = @($framework.topLevelPackages) + @($framework.transitivePackages)
+                foreach ($package in $packages) {
+                    if ($null -eq $package) { continue }
+                    if (-not $package.id -or -not $package.resolvedVersion) { throw 'Malformed package inventory.' }
+                    if ($package.vulnerabilities.Count -gt 0) { throw "Known vulnerability in $($package.id); all severities fail." }
+                }
             }
         }
     }
@@ -46,15 +48,18 @@ function Invoke-AuditCheck {
     foreach ($project in $inventory.projects) {
         $lockPath = Join-Path (Split-Path $project.path -Parent) 'packages.lock.json'
         $lock = Get-Content $lockPath -Raw | ConvertFrom-Json -AsHashtable
-        $locked = @($lock.dependencies['net10.0'].GetEnumerator() | Where-Object { $_.Value.type -ne 'Project' } |
+        foreach ($framework in $project.frameworks) {
+            $dependencies = $lock.dependencies[$framework.framework]
+            if ($null -eq $dependencies) { throw 'Missing target framework in lock file.' }
+            $locked = @($dependencies.GetEnumerator() | Where-Object { $_.Value.type -ne 'Project' } |
             ForEach-Object { "$($_.Key.ToLowerInvariant())=$($_.Value.resolved)" } | Sort-Object)
-        $framework = $project.frameworks[0]
-        $listed = @((@($framework.topLevelPackages) + @($framework.transitivePackages)) | Where-Object { $null -ne $_ } |
+            $listed = @((@($framework.topLevelPackages) + @($framework.transitivePackages)) | Where-Object { $null -ne $_ } |
             ForEach-Object { "$($_.id.ToLowerInvariant())=$($_.resolvedVersion)" } | Sort-Object)
-        if (($locked.Count -ne $listed.Count) -or ($locked.Count -gt 0 -and (Compare-Object $locked $listed))) {
-            throw "Dependency inventory differs from the lock file: $($project.path)."
+            if (($locked.Count -ne $listed.Count) -or ($locked.Count -gt 0 -and (Compare-Object $locked $listed))) {
+                throw "Dependency inventory differs from the lock file: $($project.path)."
+            }
         }
     }
-    Write-Output "Audit passed for all $($projects.Count) net10.0 projects against nuget.org; no known vulnerabilities reported."
+    Write-Output "Audit passed for all $($projects.Count) net10.0/net11.0 projects against nuget.org; no known vulnerabilities reported."
 }
 if ($MyInvocation.InvocationName -ne '.') { Invoke-AuditCheck $OutputDirectory }
