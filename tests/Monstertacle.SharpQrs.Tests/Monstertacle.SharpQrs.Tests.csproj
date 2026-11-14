@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><TargetFramework>net10.0</TargetFramework><IsTestProject>true</IsTestProject><RestoreEnablePackagePruning>false</RestoreEnablePackagePruning><IsPackable>false</IsPackable></PropertyGroup>
+  <PropertyGroup><TargetFrameworks>net10.0;net11.0</TargetFrameworks><IsTestProject>true</IsTestProject><RestoreEnablePackagePruning>false</RestoreEnablePackagePruning><IsPackable>false</IsPackable></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Monstertacle.SharpQrs/Monstertacle.SharpQrs.csproj" />
     <ProjectReference Include="../../src/Monstertacle.SharpQrs.AspNetCore/Monstertacle.SharpQrs.AspNetCore.csproj" />

@@ -1,6 +1,6 @@
 # Web example
 
-Run `dotnet run --project examples/Web -c Release -- --urls http://127.0.0.1:5080`.
+Run `dotnet run --project examples/Web -c Release --framework net11.0 -- --urls http://127.0.0.1:5080`.
 The example accepts loopback addresses only. In another terminal:
 
 ```powershell
@@ -27,7 +27,7 @@ their exceptions and cooperative cancellation propagate without a wrapper.
 
 ## Scoped worker and decorator
 
-Run `dotnet run --project examples/Web -c Release -- --worker` for a finite Generic
+Run `dotnet run --project examples/Web -c Release --framework net11.0 -- --worker` for a finite Generic
 Host demonstration. It executes two units of work and exits. Each unit creates an
 asynchronous scope, resolves a scoped application operation and awaits its command
 and query before disposing that scope. Their shared dependency has the same identity
@@ -58,3 +58,5 @@ configuration. For direct construction, build from
 require this boundary; copied/customised collections must be prepared independently.
 See [composition and migration](../../docs/di-composition.md) for ordinary concrete
 compatibility and the stronger final-validation guarantees.
+
+Use `--framework net10.0` to run the same example on .NET 10.

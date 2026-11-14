@@ -11,6 +11,17 @@
           "Monstertacle.SharpQrs": "[0.1.0-alpha.1, )"
         }
       }
+    },
+    "net11.0": {
+      "monstertacle.sharpqrs": {
+        "type": "Project"
+      },
+      "monstertacle.sharpqrs.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Monstertacle.SharpQrs": "[0.1.0-alpha.1, )"
+        }
+      }
     }
   }
 }

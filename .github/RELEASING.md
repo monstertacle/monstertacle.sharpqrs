@@ -34,10 +34,10 @@ See [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org
 3. Enable **dry_run** and run the workflow.
 
 Both Windows and Linux execute the complete shared verification entry point,
-including the requested package version, coverage, metrics, dependency audit,
+including both target frameworks and the requested package version, coverage, metrics, dependency audit,
 examples and isolated consumers of both packages. The final job downloads the
 Linux verification artefact and checks its exact commit/version and clean successful
-run. It selects exactly the two expected packages, core first, and reports their
+run, including the complete supported target set. It selects exactly the two expected packages, core first, and reports their
 SHA-256 hashes. The dry run skips OIDC login and NuGet pushes; it does not prove
 that the external NuGet policy will authorise publication.
 

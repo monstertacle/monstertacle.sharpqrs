@@ -1,6 +1,6 @@
 # Standalone example
 
-Run `dotnet run --project examples/Standalone -c Release` from the repository root.
+Run `dotnet run --project examples/Standalone -c Release --framework net11.0` from the repository root.
 The example references only the core and verifies synchronous and asynchronous commands and queries.
 Setup uses narrow registration interfaces; runtime calls use the matching dispatch
 mode. Synchronous calls return direct results and never block on asynchronous tasks.
@@ -13,3 +13,5 @@ absence explicitly, for example with a non-null `LookupResult(bool Found, string
 record. Null members are allowed. Null tasks, missing or duplicate mappings and wrong
 result contracts fail explicitly. Handlers receive the original cancellation token;
 their exceptions and cooperative cancellation propagate without a wrapper.
+
+Use `--framework net10.0` to run the same example on .NET 10.

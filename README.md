@@ -1,6 +1,6 @@
 # Monstertacle.SharpQrs
 
-Typed, in-process command and query dispatch for .NET 10, with a separate scoped
+Typed, in-process command and query dispatch for .NET 10 and .NET 11, with a separate scoped
 registration integration. Both libraries are independent of SharpClaw.
 
 - `Monstertacle.SharpQrs`: dependency-free core with explicit handler contracts and synchronous or asynchronous dispatch.
@@ -9,7 +9,8 @@ registration integration. Both libraries are independent of SharpClaw.
 
 ## Build and verify
 
-Install .NET SDK **10.0.403** and **PowerShell 7**, then run:
+Install .NET SDKs **11.0.100** and **10.0.403** (including both runtime sets)
+and **PowerShell 7**, then run:
 
 ```powershell
 dotnet tool restore
@@ -17,11 +18,12 @@ pwsh -NoProfile -File scripts/verify.ps1
 ```
 
 Verification uses locked restore, warnings-as-errors Release builds, behavioural
-tests, at least 90% line coverage **in each library**, complete Codemetr coverage
+tests, at least 90% line coverage **in each library on each target**, complete Codemetr coverage
 and diff checks, published-consumer compatibility, the strict full-source
 Codemetr guard, a dependency vulnerability audit, runnable examples and isolated
 NuGet package consumers. Reports are written to a fresh ignored `artifacts/verify-*`
-directory. Windows and Linux CI run the same script. Publishing uses the separate
+directory, with separate `net10.0/` and `net11.0/` evidence. Both packages contain
+assets for both targets. Windows and Linux CI run the same script. Publishing uses the separate
 [manual NuGet release workflow](.github/RELEASING.md).
 
 ## Standalone usage

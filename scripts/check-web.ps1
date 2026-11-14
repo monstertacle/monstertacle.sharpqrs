@@ -1,6 +1,6 @@
-param([Parameter(Mandatory)][string]$OutputDirectory)
+param([Parameter(Mandatory)][string]$OutputDirectory, [ValidateSet('net10.0', 'net11.0')][string]$Framework = 'net10.0')
 $ErrorActionPreference = 'Stop'
-$dll = [IO.Path]::GetFullPath('examples/Web/bin/Release/net10.0/Web.dll')
+$dll = [IO.Path]::GetFullPath("examples/Web/bin/Release/$Framework/Web.dll")
 $stdout = Join-Path $OutputDirectory 'web.stdout.log'
 $stderr = Join-Path $OutputDirectory 'web.stderr.log'
 $process = Start-Process dotnet -ArgumentList @("`"$dll`"", '--urls', 'http://127.0.0.1:0') -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
