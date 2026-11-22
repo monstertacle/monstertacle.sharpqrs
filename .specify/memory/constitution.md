@@ -1,6 +1,9 @@
 # Monstertacle.SharpQrs Constitution
 
-**Status**: Version 2.1.0 approved by the user on 2026-11-14. Original ratification:
+**Status**: Version 2.2.0 approved by the user on 2026-11-22 for the public
+secret-handling rollout.
+
+Version 2.1.0 was approved by the user on 2026-11-14. Original ratification:
 2026-10-28. The user also authorised autonomous progression through the remaining
 Spec Kit phases for the .NET 11 support feature.
 
@@ -123,6 +126,21 @@ Coverage is a minimum standard, not a substitute for TDD or evidence of effectiv
 - Existing non-English project prose MUST be translated when brought into the
   approved workflow and before its acceptance. Language compliance MUST be reviewed.
 
+### VII. Secret handling before commits
+
+- Contributors MUST keep real API keys, tokens, passwords, connection strings
+  containing credentials, private keys, confidential data and session or
+  authentication state out of sources, tests, documentation, examples, Git
+  history, logs, artefacts, caches and images. Use runtime secret management
+  and generate ephemeral synthetic test keys at test time. Ignore rules alone
+  are insufficient.
+- Before every commit, contributors MUST examine the exact staged diff and run
+  the [staged secret check](../../docs/secret-handling.md). A detection, missing
+  dependency or scan failure MUST block the commit. Reports MUST redact values.
+- Contributors MUST report confirmed exposure privately to the authorised
+  owner without values and promptly rotate affected real credentials with
+  authorisation.
+
 ## Technical Constraints and Sources
 
 - The programming language is C#; libraries and tests MUST target both .NET 10
@@ -192,4 +210,8 @@ Ratification removes that suffix and sets the ratification date. Later amendment
 preserve that date and update the amendment date. Planning and acceptance reviews MUST
 identify the Constitution version assessed.
 
-**Version**: 2.1.0 | **Ratified**: 2026-10-28 | **Last Amended**: 2026-11-14
+The 2.2.0 amendment reduces the risk of disclosing credentials and private data
+by adding staged verification to the contributor workflow. See the [feature plan](../../specs/005-staged-secret-protection/plan.md)
+for the impact assessment and verification.
+
+**Version**: 2.2.0 | **Ratified**: 2026-10-28 | **Last Amended**: 2026-11-22
