@@ -155,6 +155,9 @@ endpoints are provided.
 
 ## Development
 
+Review the [secret handling rules and mandatory staged check](docs/secret-handling.md)
+before committing.
+
 See [development and quality gates](docs/development.md), the
 [quickstart validation guide](specs/001-cqrs-libraries/quickstart.md),
 [public contracts](specs/001-cqrs-libraries/contracts/core-api.md) and
